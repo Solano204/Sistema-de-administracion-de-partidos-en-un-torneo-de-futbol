@@ -1,0 +1,75 @@
+public record CategoryInfoRecord(
+    UUID id,
+    String name,
+    AgeRangeRecord ageRange
+) {}public record CategoryTeamsRecord(
+    UUID categoryId,
+    String categoryName,
+    List<TeamSummaryRecord> teams
+) {}
+public record JourneyCreateRecord(UUID idJourney, int numberJourney, UUID category) {
+    
+}
+
+public record MatchCreateRecord(
+    LocalDate matchDate,
+    UUID refereeId,
+    UUID matchId,
+    UUID homeTeamId,
+    UUID awayTeamId
+    
+) {}
+public record MatchDetailsRecord(
+    UUID idMatch,
+     MatchStatsDetails homeTeam,
+     MatchStatsDetails awayTeam
+) {}public record MatchFullRecord(
+    UUID id,
+     UUID categoryId,
+     LocalDate matchDate,
+     MatchStatus status,
+     RefereeDetailsRecord referee,
+     MatchStatsDetails resultsTeam1,
+     MatchStatsDetails resultsTeam2
+     
+     
+     ){}public record MatchStatsDetails(
+    String name,
+    UUID id,
+    GoalsRecord goalsWin,
+    GoalsRecord goalsAgainst,
+    Set<PlayerMatchStatsRecordDto> infoPlayerMatchStats
+) {
+}
+public record MatchTinyDetails(UUID idMatch, MatchStatus status, TeamNameIdRecord teamId, TeamNameIdRecord teamId2) {}
+
+public record PlayerCreateRecord(
+    String name,
+    LocalDate birthDate,
+    int jerseyNumber,
+    int Age,
+    String photo
+) {}public record PlayerDetailsRecord(
+    UUID id,
+    String name,
+    LocalDate birthDate,
+    Integer age,
+    String jerseyNumber,
+    GoalsRecord goalsWin,
+    GoalsRecord goalsAgainst,
+    PointsRecord points,
+    String nameTeam,
+    String photo
+) {}public record PlayerMatchStatsRecordDto(
+    UUID playerId,
+    GoalsRecord goals,
+    boolean attended,
+    CardsRecord cards
+) {}
+public record PlayerOrganizedRecord(
+    UUID id,
+    String name,
+    GoalsRecord goals,
+    PointsRecord points,
+    String teamName
+) {}

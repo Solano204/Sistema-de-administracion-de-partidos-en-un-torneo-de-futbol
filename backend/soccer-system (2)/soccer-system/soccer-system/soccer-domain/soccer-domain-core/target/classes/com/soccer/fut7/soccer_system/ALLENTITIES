@@ -1,0 +1,395 @@
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "categories", schema = "fut_jaguar")
+public class CategoryEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = "category_name", nullable = false, length = 100)
+    private String categoryName;
+
+    @Column(name = "min_age", nullable = false)
+    private Integer minAge;
+
+    @Column(name = "max_age", nullable = false)
+    private Integer maxAge;
+
+ 
+}
+
+
+
+@Converter(autoApply = true)
+public class DebtStatusConverter implements AttributeConverter<DebtStatus, String> {
+
+    @Override
+    public String convertToDatabaseColumn(DebtStatus attribute) {
+        if (attribute == null) {
+            return null;
+        }
+        return attribute.name();
+    }
+
+    @Override
+    public DebtStatus convertToEntityAttribute(String dbData) {
+        if (dbData == null) {
+            return null;
+        }
+        return DebtStatus.valueOf(dbData);
+    }
+}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "matches", schema = "fut_jaguar")
+public class MatchEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private CategoryEntity category;
+
+    @Column(name = "match_date", nullable = false)
+    private LocalDate matchDate;
+
+    @Column(name = "match_status", nullable = false)
+    private String matchStatus;
+
+    @ManyToOne
+    @JoinColumn(name = "referee_id", nullable = false)
+    private UserEntity referee;
+
+    @OneToOne
+    @JoinColumn(name = "home_team_stats_id")
+    private TeamMatchStatsEntity homeTeam;
+
+    @OneToOne
+    @JoinColumn(name = "away_team_stats_id")
+    private TeamMatchStatsEntity awayTeam;
+}
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "player_debts", schema = "fut_jaguar")
+public class PlayerDebtEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "player_id", nullable = false)
+    private PlayerEntity player;
+
+    @Column(name = "debt_status", columnDefinition = "fut_jaguar.debt_status")
+    private String debtStatus;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
+
+    @Column(nullable = false, length = 3)
+    private String currency = "USD";
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "due_date")
+    private LocalDate dueDate;
+
+    @Column(name = "paid_date")
+    private LocalDate paidDate;
+}
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "players", schema = "fut_jaguar")
+public class PlayerEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = "first_name", nullable = false, length = 100)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false, length = 100)
+    private String lastName;
+
+    @Column(name = "jersey_number", nullable = false)
+    private Integer jerseyNumber;
+
+    @ManyToOne
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JoinColumn(name = "team_id", nullable = false)
+    private TeamEntity team;
+
+    @Column(name = "age", nullable = false)
+    private Integer age = 0;
+
+    @Column(name = "photo_url", length = 255)
+    private String photoUrl;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    @Column(name = "player_status", nullable = false)
+    private String playerStatus = PlayerStatus.ACTIVO.toString();
+
+    @Column(name = "captain", nullable = false)
+    private Boolean Captian = false;
+
+    @Column(name = "email")
+    private String email;
+
+    // One-to-One relationship with PlayerStats
+    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private PlayerStatsEntity playerStats;
+
+}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "player_stats", schema = "fut_jaguar")
+public class PlayerStatsEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false)
+    private Integer goals = 0;
+
+    @Column(nullable = false)
+    private Integer points = 0;  // Add this field
+
+    @Column(name = "jersey_number", nullable = false)
+    private Integer jerseyNumber;
+
+    @Column(name = "yellow_cards", nullable = false)
+    private Integer yellowCards = 0;
+
+    @Column(name = "red_cards", nullable = false)
+    private Integer redCards = 0;
+
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "player_id", nullable = false, unique = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private PlayerEntity player;
+}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "referee_payments", schema = "fut_jaguar")
+public class RefereePaymentEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "referee_id", nullable = false)
+    private UserEntity referee;
+
+    @Column(name = "payment_date", nullable = false)
+    private LocalDate paymentDate;
+
+    // Changed to BigDecimal to match DECIMAL in database
+    @Column(name = "hours_worked", nullable = false, precision = 5, scale = 2)
+    private BigDecimal hoursWorked;
+
+    @Column(name = "hourly_rate_amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal hourlyRateAmount;
+
+    @Column(name = "total_payment_amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalPaymentAmount;
+
+    @Column(nullable = false, length = 3)
+    private String currency = "USD";
+}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "team_debts", schema = "fut_jaguar")
+public class TeamDebtEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "team_id", nullable = false)
+    private TeamEntity team;
+
+    @Column(name = "debt_status", nullable = false)
+    private String debtStatus;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
+
+    @Column(nullable = false, length = 3)
+    private String currency = "USD";
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "due_date")
+    private LocalDate dueDate;
+
+    @Column(name = "paid_date")
+    private LocalDate paidDate;
+}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "teams", schema = "fut_jaguar")
+public class TeamEntity {
+  @Id
+  @GeneratedValue(generator = "UUID")
+  @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+  @Column(columnDefinition = "uuid", updatable = false)
+  private UUID id;
+
+  @Column(name = "team_name", nullable = false, length = 100)
+  private String teamName;
+
+  @Column(name = "logo_url", length = 255)
+  private String logoUrl;
+
+  @ManyToOne
+  @JoinColumn(name = "category_id", nullable = false)
+  private CategoryEntity category;
+
+  @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<PlayerEntity> players;
+
+  @Column(name = "number_of_players", nullable = false)
+  private Integer numberOfPlayers = 0;
+  // One-to-One relationship with TeamStats
+  @OneToOne(mappedBy = "team", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  private TeamStatsEntity teamStats;
+
+  public void addPlayer(PlayerEntity player) {
+    this.players.add(player);
+    player.setTeam(this);
+    this.numberOfPlayers = this.players.size(); // Update count
+  }
+}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "team_match_stats", schema = "fut_jaguar")
+public class TeamMatchStatsEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "match_id")
+    private MatchEntity match;
+
+    @ManyToOne
+    @JoinColumn(name = "team_id", nullable = false)
+    private TeamEntity team;
+
+    @Column(nullable = false)
+    private Integer goals = 0;
+
+    @Column(name = "goals_against", nullable = false)
+    private Integer goalsAgainst = 0;
+
+    @Column(nullable = false)
+    private Integer points = 0;
+}
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "team_stats", schema = "fut_jaguar")
+public class TeamStatsEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private TeamEntity team;
+
+    @Column(nullable = false)
+    private Integer goals = 0;
+
+    @Column(name = "goals_against", nullable = false)
+    private Integer goalsAgainst = 0;
+
+    @Column(name = "matches_played", nullable = false)
+    private Integer matchesPlayed = 0;
+
+    @Column(nullable = false)
+    private Integer points = 0;
+}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "users", schema = "fut_jaguar")
+public class UserEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = "first_name",  length = 100)
+    private String firstName;
+
+    @Column(name = "last_name", length = 100)
+    private String lastName;
+
+
+    @Column(name = "age")
+    private Integer age = 0;
+
+    @Column(name = "photo_url", length = 255)
+    private String photoUrl;
+
+    
+    @Column(unique = true,  length = 50)
+    private String username;
+
+    @Column(name = "password_hash",  length = 255)
+    private String passwordHash;
+
+    @Column(name = "user_role")
+    private String userRole;
+
+    @Column(name = "user_status")
+    private String userStatus = UserStatus.ACTIVO.toString();
+}

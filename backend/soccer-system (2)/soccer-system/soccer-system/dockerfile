@@ -1,0 +1,48 @@
+# First stage: Dependencies
+FROM maven:3.9.9-eclipse-temurin-21 AS dependencies
+
+WORKDIR /app
+
+# Copy only pom files first to leverage Docker cache
+COPY pom.xml .
+COPY common/pom.xml common/
+COPY common/common-domain/pom.xml common/common-domain/
+COPY soccer-domain/pom.xml soccer-domain/
+COPY soccer-domain/soccer-domain-core/pom.xml soccer-domain/soccer-domain-core/
+COPY soccer-domain/soccer-application-service/pom.xml soccer-domain/soccer-application-service/
+COPY soccer-dataacess/pom.xml soccer-dataacess/
+COPY soccer-application/pom.xml soccer-application/
+COPY soccer-container/pom.xml soccer-container/
+
+# Download all dependencies but don't build yet
+RUN mvn -B dependency:go-offline -DskipTests
+
+# Second stage: Build - IMPORTANT: Use maven image again, not just JRE
+FROM maven:3.9.9-eclipse-temurin-21 AS builder
+
+WORKDIR /app
+
+# Copy maven repository from dependencies stage
+COPY --from=dependencies /root/.m2 /root/.m2
+# Copy the pom files again
+COPY . .
+
+# Build the project with preview features enabled
+RUN mvn clean install -DskipTests
+
+# Third stage: Runtime
+FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+# Copy the jar from the builder stage - use the soccer-container jar as it has the main app
+COPY --from=builder /app/soccer-container/target/*.jar /app/app.jar
+
+# Expose the port the app will run on
+EXPOSE 8080
+
+# Run the application with preview features enya abled
+ENTRYPOINT ["java", "--enable-preview", "-jar", "/app/app.jar"]
+
+
+

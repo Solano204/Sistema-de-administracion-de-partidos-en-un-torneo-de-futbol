@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings
+    xmlns="http://java.sun.com/xml/ns/persistence/orm"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+    version="2.0">
+    
+    <named-stored-procedure-query name="initialize_tournament_roll" procedure-name="fut_jaguar.initialize_tournament_roll">
+        <parameter name="p_tournament_name" mode="IN" class="java.lang.String"/>
+        <parameter name="p_category_name" mode="IN" class="java.lang.String"/>
+        <parameter name="p_start_date" mode="IN" class="java.time.LocalDate"/>
+        <parameter name="p_end_date" mode="IN" class="java.time.LocalDate"/>
+    </named-stored-procedure-query>
+    
+    <named-stored-procedure-query name="simulate_round_robin_matches" procedure-name="fut_jaguar.simulate_round_robin_matches">
+        <parameter name="p_tournament_id" mode="IN" class="java.util.UUID"/>
+    </named-stored-procedure-query>
+    
+    <named-stored-procedure-query name="create_tournament_divisions" procedure-name="fut_jaguar.create_tournament_divisions">
+        <parameter name="p_tournament_id" mode="IN" class="java.util.UUID"/>
+    </named-stored-procedure-query>
+    
+    <named-stored-procedure-query name="advance_to_next_phase" procedure-name="fut_jaguar.advance_to_next_phase">
+        <parameter name="p_tournament_id" mode="IN" class="java.util.UUID"/>
+        <parameter name="p_division_name" mode="IN" class="java.lang.String"/>
+    </named-stored-procedure-query>
+    
+    <named-stored-procedure-query name="simulate_elimination_matches" procedure-name="fut_jaguar.simulate_elimination_matches">
+        <parameter name="p_tournament_id" mode="IN" class="java.util.UUID"/>
+        <parameter name="p_division_id" mode="IN" class="java.util.UUID"/>
+    </named-stored-procedure-query>
+</entity-mappings>

@@ -1,0 +1,56 @@
+spring:
+  main:
+    allow-circular-references: true
+  
+  # Database Configuration (matches your current setup)
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/soccerdb}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:1234}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
+    
+  # JPA/Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: ${SPRING_JPA_SHOW_SQL:true}
+    properties:
+      hibernate:
+        default_schema: fut_jaguar  # Your schema name
+        format_sql: ${SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL:true}
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Logging Configuration (matches your current setup)
+logging:
+  level:
+    org.hibernate.SQL: ${LOGGING_LEVEL_ORG_HIBERNATE_SQL:DEBUG}
+    org.hibernate.type.descriptor.sql.BasicBinder: ${LOGGING_LEVEL_ORG_HIBERNATE_TYPE_DESCRIPTOR_SQL_BASICBINDER:TRACE}
+    com.yourpackage: DEBUG  # Replace with your actual package name
+    root: INFO
+
+# Security Configuration (matches your current setup)
+app:
+  security:
+    jwt:
+      secret-key: ${APP_SECURITY_JWT_SECRET_KEY:dGVzdF9zZWNyZXRfa2V5X2Zvcl9kZXZlbG9wbWVudF9vbmx5X2RvX25vdF91c2VfaW5fcHJvZHVjdGlvbg==}
+      token-expiration-ms: ${APP_SECURITY_JWT_TOKEN_EXPIRATION_MS:3600000}  # 1 hour
+      refresh-expiration-ms: ${APP_SECURITY_JWT_REFRESH_EXPIRATION_MS:86400000}  # 24 hours
+      token-prefix: ${APP_SECURITY_JWT_TOKEN_PREFIX:Bearer }
+      header-name: ${APP_SECURITY_JWT_HEADER_NAME:Authorization}
+
+# Server Configuration
+server:
+  port: 8080
+
+
+
+
+
+
+
+

@@ -1,0 +1,378 @@
+these are the MAPPERS if its' needed to create other mapper to complete the task complete make it 
+@Component
+@RequiredArgsConstructor
+public class CategoryMapper implements EntityMapper<Category, CategoryEntity> {
+
+    private final TeamMapper teamMapper;
+
+    @Override
+    public CategoryEntity toEntity(Category domain) {
+        if (domain == null) return null;
+        
+        return CategoryEntity.builder()
+            .id(domain.getId())
+            .categoryName(domain.getName().value())
+            .minAge(domain.getAgeRange().minAge())
+            .maxAge(domain.getAgeRange().maxAge())
+            .build();
+    }
+
+    public CategoryEntity UUIDtoEntity(UUID idCategory) {
+        
+        return CategoryEntity.builder()
+            .id(idCategory)
+            .build();
+    }
+
+    @Override
+    public Category toDomain(CategoryEntity entity) {
+        if (entity == null) return null;
+        
+        return Category.builder()
+            .id(entity.getId())
+            .name(new CategoryName(entity.getCategoryName()))
+            .ageRange(new AgeRange(entity.getMinAge(), entity.getMaxAge()))
+            .build();
+    }
+}public interface EntityMapper<D, E> {
+    E toEntity(D domain);
+    D toDomain(E entity);
+}
+@Component
+@RequiredArgsConstructor
+public class MatchMapper implements EntityMapper<Match, MatchEntity> {
+
+    private final CategoryMapper categoryMapper;
+    private final TeamMapper teamMapper;
+    private final UserMapper userMapper;
+
+    @Override
+    public MatchEntity toEntity(Match domain) {
+        if (domain == null) return null;
+        
+        return MatchEntity.builder()
+            .id(domain.getId())
+            .category(categoryMapper.UUIDtoEntity(domain.getCategoryId()))
+            .matchDate(domain.getMatchDate().value())
+            .matchStatus(domain.getStatus())
+            .referee(userMapper.toEntity(domain.getReferee()))
+            // .homeTeam(teamMapper.toEntity(domain.getResults().getHomeTeam()))
+            // .awayTeam(teamMapper.toEntity(domain.getResults().getAwayTeam()))
+            .build();
+    }
+
+    @Override
+    public Match toDomain(MatchEntity entity) {
+        if (entity == null) return null;
+        
+        return Match.builder()
+            .id(entity.getId())
+            .categoryId(entity.getCategory().getId())
+            .matchDate(new MatchDate(entity.getMatchDate()))
+            .status(entity.getMatchStatus())
+            .referee(userMapper.toDomain(entity.getReferee()))
+            // .results(new MatchResults(
+            //     entity.getId(),
+            //     new InfoTeamMatch(
+            //         entity.getHomeTeam().(),
+            //         entity.getHomeTeam().getId(),
+            //         new Goals(0),
+            //         new Goals(0),
+            //         Set.of()
+            //     ),
+            //     new InfoTeamMatch(
+            //         entity.getAwayTeam().getTeamName(),
+            //         entity.getAwayTeam().getId(),
+            //         new Goals(0),
+            //         new Goals(0),
+            //         Set.of()
+            //     )
+            // ))
+            .build();
+    }
+}
+@Component
+@RequiredArgsConstructor
+public class PlayerDebtMapper implements EntityMapper<PlayerDebt, PlayerDebtEntity> {
+
+    private final PlayerMapper playerMapper;
+
+    @Override
+    public PlayerDebtEntity toEntity(PlayerDebt domain) {
+        if (domain == null) return null;
+        
+        return PlayerDebtEntity.builder()
+            .id(domain.getId())
+            .player(playerMapper.UUIDtoEntity(domain.getPlayerId()))
+            .debtStatus(domain.getStatus())
+            .amount(domain.getAmount().amount())
+            .currency(domain.getAmount().currency().getCurrencyCode())
+            .description(domain.getDescription())
+            .dueDate(domain.getDueDate().value())
+            .paidDate(domain.getPaidDate() != null ? domain.getPaidDate().value() : null)
+            .build();
+    }
+
+    @Override
+    public PlayerDebt toDomain(PlayerDebtEntity entity) {
+        if (entity == null) return null;
+        
+        return PlayerDebt.builder()
+            .id(entity.getId())
+            .playerId(entity.getPlayer().getId())
+            .name(entity.getPlayer().getFirstName() + " " + entity.getPlayer().getLastName())
+            .status(entity.getDebtStatus())
+            .amount(new Money(entity.getAmount(), Currency.getInstance(entity.getCurrency())))
+            .description(entity.getDescription())
+            .dueDate(new DebtDate(entity.getDueDate()))
+            .paidDate(entity.getPaidDate() != null ? new DebtDate(entity.getPaidDate()) : null)
+            .build();
+    }
+}
+@Component
+@RequiredArgsConstructor
+public class PlayerMapper implements EntityMapper<Player, PlayerEntity> {
+
+    private final TeamMapper teamMapper;
+
+    @Override
+    public PlayerEntity toEntity(Player domain) {
+        if (domain == null)
+            return null;
+
+        return PlayerEntity.builder()
+                .id(domain.getId())
+                .firstName(domain.getPersonName().firstName())
+                .lastName(domain.getPersonName().lastName())
+                .jerseyNumber(domain.getJerseyNumber().value())
+                .team(teamMapper.toEntity(domain.getTeam()))
+                .goalsWin(domain.getGoals().value())
+                .points(domain.getPoints().value())
+                .photoUrl(domain.getPhoto())
+                .birthDate(domain.getBirthDate().value())
+                .playerStatus(domain.getPlayerStatus())
+                .Captian(domain.getIsCaptain())
+                .email(domain.getEmail().value())
+                .build();
+    }
+
+    public PlayerEntity UUIDtoEntity(UUID playerID) {
+         return PlayerEntity.builder()
+        .id(playerID)
+        .build();
+    }
+    
+    @Override
+    public Player toDomain(PlayerEntity entity) {
+        if (entity == null)
+            return null;
+
+        return Player.builder()
+                .id(entity.getId())
+                .personName(new PersonName(entity.getFirstName(), entity.getLastName()))
+                .jerseyNumber(new JerseyNumber(entity.getJerseyNumber()))
+                .team(teamMapper.toDomain(entity.getTeam()))
+                .goals(new Goals(entity.getGoalsWin()))
+                .points(new Points(entity.getPoints()))
+                .photo(entity.getPhotoUrl())
+                .birthDate(new BirthDate(entity.getBirthDate()))
+                .playerStatus(entity.getPlayerStatus())
+                .isCaptain(entity.getCaptian())
+                .email(new Email(entity.getEmail()))
+                .build();
+    }
+
+    public Set<PlayerEntity> toEntity(Set<Player> domains) {
+        if (domains == null)
+            return null;
+
+        return domains.stream()
+                .map(this::toEntity)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<Player> toDomain(Set<PlayerEntity> entities) {
+        if (entities == null)
+            return null;
+
+        return entities.stream()
+                .map(this::toDomain)
+                .collect(Collectors.toSet());
+    }
+}
+@Component
+@RequiredArgsConstructor
+public class PlayerStatsMapper implements EntityMapper<Player, PlayerStatsEntity> {
+
+    private final PlayerMapper playerMapper;
+
+    @Override
+    public PlayerStatsEntity toEntity(Player domain) {
+        if (domain == null) return null;
+        
+        return PlayerStatsEntity.builder()
+            .id(domain.getId())
+            .player(playerMapper.toEntity(domain))
+            .goals(domain.getGoals().value())
+            .points(domain.getPoints().value())
+            .jerseyNumber(domain.getJerseyNumber().value())
+            .yellowCards(domain.getCards().yellowCards())
+            .redCards(domain.getCards().redCards())
+            .build();
+    }
+
+    @Override
+    public Player toDomain(PlayerStatsEntity entity) {
+        if (entity == null) return null;
+        
+        return Player.builder()
+            .id(entity.getId())
+            .goals(new Goals(entity.getGoals()))
+            .points(new Points(entity.getPoints()))
+            .jerseyNumber(new JerseyNumber(entity.getJerseyNumber()))
+            .cards(new Cards(entity.getYellowCards(), entity.getRedCards()))
+            .build();
+    }
+}
+@Component
+@RequiredArgsConstructor
+public class TeamDebtMapper implements EntityMapper<TeamDebt, TeamDebtEntity> {
+
+    private final TeamMapper teamMapper;
+
+    @Override
+    public TeamDebtEntity toEntity(TeamDebt domain) {
+        if (domain == null) return null;
+        
+        return TeamDebtEntity.builder()
+            .id(domain.getId())
+            .team(teamMapper.UUIDtoEntity(domain.getTeamId()))
+            .debtStatus(domain.getStatus())
+            .amount(domain.getAmount().amount())
+            .currency(domain.getAmount().currency().getCurrencyCode())
+            .description(domain.getDescription())
+            .dueDate(domain.getDueDate().value())
+            .paidDate(domain.getPaidDate() != null ? domain.getPaidDate().value() : null)
+            .build();
+    }
+
+    @Override
+    public TeamDebt toDomain(TeamDebtEntity entity) {
+        if (entity == null) return null;
+        
+        return TeamDebt.builder()
+            .id(entity.getId())
+            .teamId(entity.getTeam().getId())
+            .name(entity.getTeam().getTeamName())
+            .status(entity.getDebtStatus())
+            .amount(new Money(entity.getAmount(), Currency.getInstance(entity.getCurrency())))
+            .description(entity.getDescription())
+            .dueDate(new DebtDate(entity.getDueDate()))
+            .paidDate(entity.getPaidDate() != null ? new DebtDate(entity.getPaidDate()) : null)
+            .build();
+    }
+}
+@Component
+@RequiredArgsConstructor
+public class TeamMapper implements EntityMapper<Team, TeamEntity> {
+
+    private final CategoryMapper categoryMapper;
+    private final PlayerMapper playerMapper;
+
+    @Override
+    public TeamEntity toEntity(Team domain) {
+        if (domain == null) return null;
+        
+        return TeamEntity.builder()
+            .id(domain.getId())
+            .teamName(domain.getName().value())
+            .logoUrl(domain.getLogo().url())
+            .category(categoryMapper.toEntity(domain.getCategory()))
+            .numberOfPlayers(domain.getNumberOfPlayers())
+            .build();
+    }
+
+    public TeamEntity UUIDtoEntity(UUID idTeam) {
+        return TeamEntity.builder()
+            .id(idTeam)
+            .build();
+    }
+
+    @Override
+    public Team toDomain(TeamEntity entity) {
+        if (entity == null) return null;
+        
+        return Team.builder()
+            .id(entity.getId())
+            .name(new TeamName(entity.getTeamName()))
+            .logo(new TeamLogo(entity.getLogoUrl()))
+            .category(categoryMapper.toDomain(entity.getCategory()))
+            .numberOfPlayers(entity.getNumberOfPlayers())
+            .players(playerMapper.toDomain(entity.getPlayers()))
+            .build();
+    }
+}
+@Component
+@RequiredArgsConstructor
+public class TeamStatsMapper implements EntityMapper<TeamStats, TeamStatsEntity> {
+
+    private final TeamMapper teamMapper;
+    @Override
+    public TeamStatsEntity toEntity(TeamStats domain) {
+        if (domain == null) return null;
+        
+        return TeamStatsEntity.builder()
+            .id(domain.getId().value())
+            .team(teamMapper.UUIDtoEntity(domain.getIdTeam()))
+            .matchesPlayed(domain.getMatchesPlayed())
+            .goals(domain.getGoalsWin())
+            .goalsAgainst(domain.getGoalsAgainst())
+            .points(domain.getPoints())
+            .build();
+    }
+
+    @Override
+    public TeamStats toDomain(TeamStatsEntity entity) {
+        if (entity == null) return null;
+        
+        return TeamStats.builder()
+            .id(new TeamStatsId(entity.getId()))
+            .idTeam(entity.getId())
+            .matchesPlayed(entity.getMatchesPlayed())
+            .goalsWin(entity.getGoals())
+            .goalsAgainst(entity.getGoalsAgainst())
+            .points(entity.getPoints())
+            .build();
+    }
+}
+@Component
+public class UserMapper implements EntityMapper<User, UserEntity> {
+
+    @Override
+    public UserEntity toEntity(User domain) {
+        if (domain == null) return null;
+        
+        return UserEntity.builder()
+            .id(domain.getId())
+            .firstName(domain.getPersonName().firstName())
+            .lastName(domain.getPersonName().lastName())
+            .username(domain.getCredentials().username())
+            .passwordHash(domain.getCredentials().passwordHash())
+            .userRole(domain.getRole())
+            .userStatus(domain.getStatus())
+            .build();
+    }
+
+    @Override
+    public User toDomain(UserEntity entity) {
+        if (entity == null) return null;
+        
+        return User.builder()
+            .id(entity.getId())
+            .personName(new PersonName(entity.getFirstName(), entity.getLastName()))
+            .credentials(new UserCredentials(entity.getUsername(), entity.getPasswordHash()))
+            .role(entity.getUserRole())
+            .status(entity.getUserStatus())
+            .build();
+    }
+}

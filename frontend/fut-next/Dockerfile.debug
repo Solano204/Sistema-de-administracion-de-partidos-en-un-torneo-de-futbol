@@ -1,0 +1,45 @@
+﻿# Debug Dockerfile to see what's being copied
+FROM node:20-alpine
+
+WORKDIR /app
+
+# List what we're copying to debug
+RUN echo "=== Checking Alpine environment ==="
+RUN node --version
+RUN npm --version
+
+# Copy and debug the standalone build
+COPY ./.next/standalone ./
+RUN echo "=== Contents of /app after copying standalone ==="
+RUN ls -la
+
+# Copy public folder
+COPY ./public ./public
+RUN echo "=== Contents of /app/public ==="
+RUN ls -la public/
+
+# Copy static files
+COPY ./.next/static ./.next/static
+RUN echo "=== Contents of /app/.next/static ==="
+RUN ls -la .next/static/
+
+# Check if server.js exists
+RUN echo "=== Checking for server.js ==="
+RUN ls -la server.js || echo "server.js not found!"
+
+# Create user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+RUN chown -R nextjs:nodejs /app
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+
+# Try to start the application
+CMD ["node", "server.js"]

@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "SoccerSystemApplication",
+            "request": "launch",
+            "mainClass": "com.soccer.fut7.soccer_system.main.SoccerSystemApplication",
+            "projectName": "soccer-container"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SoccerSystemApplication<soccer-container>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.soccer.fut7.soccer_system.SoccerSystemApplication",
+            "projectName": "soccer-container",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

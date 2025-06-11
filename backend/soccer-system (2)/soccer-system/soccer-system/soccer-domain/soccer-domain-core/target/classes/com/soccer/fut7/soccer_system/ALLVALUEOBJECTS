@@ -1,0 +1,40 @@
+public record AgeRange(int minAge, int maxAge) {
+    public record BirthDate(LocalDate value) {
+        public record Cards(int yellowCards, int redCards) {
+            public record CategoryDescription(String value) {
+                public record CategoryName(String value) {
+                    public record DebtDate(LocalDate value) {
+                        public enum DebtStatus {
+                            public record Email(String value) {
+                                public record Goals(int value) {
+                                    public record InfoTeamMatch (String name,UUID id,  Goals goalsWin, Goals goalsAgainst, Set<PlayerMatchStats> infoPlayerMatchStats
+                                    public record JerseyNumber(int value) {
+                                        public record MatchDate(LocalDate value) {
+                                            public enum MatchStatus {
+                                                COMPLETED,
+                                                POSTPONED,
+                                                SELECTED,
+                                                UNSELECTED,
+                                                CANCELED
+                                            }
+public record Money(BigDecimal amount, Currency currency) {
+public record PaymentDate(LocalDate value) {
+                                            
+public record PersonName(String firstName, String lastName) {
+public record Points(int value) {
+public record TeamLogo(String url) {
+public record TeamName(String value) {
+public record TeamStatsId(UUID value) {
+public record UserCredentials(String username, String passwordHash) {
+    public enum UserRole {
+        ADMIN,
+        REFEREE,
+        COACH,
+        PLAYER,
+        MANAGER
+    }public enum UserStatus {
+        ACTIVE,
+        INACTIVE,
+        SUSPENDED,
+        PENDING
+    }

@@ -1,0 +1,24 @@
+# Build stage
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
+
+WORKDIR /app
+
+# Copy everything
+COPY . .
+
+# Build with debug info
+RUN mvn clean package -DskipTests -X
+
+# Show exactly what's in the target directory
+RUN ls -la soccer-container/target/
+
+# Run stage
+FROM eclipse-temurin:21-jre-alpine
+
+WORKDIR /app
+
+# Copy ONLY the executable JAR - this file MUST exist
+COPY --from=build /app/soccer-container/target/soccer-container-0.0.1-SNAPSHOT.jar app.jar
+
+# Run the application
+ENTRYPOINT ["java", "--enable-preview", "-jar", "/app/app.jar"]

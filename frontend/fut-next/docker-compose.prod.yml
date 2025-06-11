@@ -1,0 +1,14 @@
+services:
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    deploy:
+      resources:
+        limits:
+          memory: 1G  # Reduced memory needs since we're not building in container

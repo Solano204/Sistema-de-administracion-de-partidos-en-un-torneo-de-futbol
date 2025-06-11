@@ -1,0 +1,36 @@
+# .github/workflows/docker-build.yml
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # GitHub's runners have 7GB of RAM
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: yourname/fut-next-app:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/fut-next-app.tar
+      
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: fut-next-app-docker-image
+          path: /tmp/fut-next-app.tar
+          retention-days: 1

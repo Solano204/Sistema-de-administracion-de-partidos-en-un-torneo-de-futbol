@@ -1,0 +1,443 @@
+
+public class Category extends AggregateRoot {
+    private UUID id;
+    private CategoryName name;
+    private CategoryDescription description;
+    private AgeRange ageRange;
+    private Set<Team> teams;
+    
+    protected void validateCategory() {
+        super.validateId();
+        
+        if (name == null) {
+            throw new IllegalArgumentException("Category name cannot be null");
+        }
+        if (ageRange == null) {
+            throw new IllegalArgumentException("Age range cannot be null");
+        }
+        if (teams == null) {
+            this.teams = new HashSet<>();
+        }
+    }
+}
+
+public abstract class Debt extends BaseEntity {
+    private UUID id;
+    private DebtStatus status;
+    private Money amount;
+    private String description;
+    private DebtDate createdDate;
+    private DebtDate dueDate;
+    private DebtDate paidDate;
+    
+    protected void validateDebt() {
+        if (status == null) {
+            throw new IllegalArgumentException("Debt status cannot be null");
+        }
+        if (amount == null || amount.isNegative()) {
+            throw new IllegalArgumentException("Debt amount must be positive");
+        }
+        if (createdDate == null) {
+            throw new IllegalArgumentException("Created date cannot be null");
+        }
+    }
+}
+
+
+
+public class Match extends AggregateRoot {
+    private UUID id;
+    private MatchDate matchDate;
+    private MatchStatus status;
+    private User referee;
+    private Set<PlayerMatchStats> playerMatchStats;
+    private Set<TeamResult> results;
+    
+    protected void validateMatch() {
+        super.validateId();
+        
+        if (matchDate == null) {
+            throw new IllegalArgumentException("Match date cannot be null");
+        }
+      
+        if (status == null) {
+            throw new IllegalArgumentException("Status cannot be null");
+        }
+        if (playerMatchStats == null) {
+            this.playerMatchStats = new HashSet<>();
+        }
+        if (results == null) {
+            this.results = new HashSet<>();
+        }
+        
+        if (results.size() > 2) {
+            throw new IllegalArgumentException("A match cannot have more than 2 results (home and away)");
+        }
+    }
+}
+
+
+
+public enum MatchResult {
+    HOME_WIN,
+    AWAY_WIN,
+    DRAW,
+    NOT_PLAYED;
+
+    public static MatchResult fromGoals(int homeGoals, int awayGoals) {
+        if (homeGoals > awayGoals) {
+            return HOME_WIN;
+        } else if (homeGoals < awayGoals) {
+            return AWAY_WIN;
+        } else {
+            return DRAW;
+        }
+    }
+}
+
+
+public abstract class Person extends AggregateRoot {
+    private PersonName personName;
+    private BirthDate birthDate;
+    private Integer age;
+    
+    protected void validatePerson() {
+        if (personName == null) {
+            throw new IllegalArgumentException("Person name cannot be null");
+        }
+        if (birthDate == null) {
+            throw new IllegalArgumentException("Birth date cannot be null");
+        }
+        calculateAge();
+    }
+    
+    protected void calculateAge() {
+        if (birthDate != null) {
+            this.age = birthDate.calculateAge();
+        }
+    }
+}
+
+
+public class Player extends Person {
+    private UUID id;
+    private JerseyNumber jerseyNumber;
+    private Team team;
+    private ContactInfo contactInfo;
+    private Goals goalsWin;
+    private Goals goalsAgainst;
+    private Points points;
+    private Set<PlayerDebt> debts;
+    private Set<PlayerMatchStats> matchStats;
+    
+    protected void validatePlayer() {
+        super.validatePerson();
+        super.validateId();
+        
+        if (jerseyNumber == null) {
+            throw new IllegalArgumentException("Jersey number cannot be null");
+        }
+        if (team == null) {
+            throw new IllegalArgumentException("Team cannot be null");
+        }
+        if (contactInfo == null) {
+            throw new IllegalArgumentException("Contact info cannot be null");
+        }
+        if (goalsAgainst == null) {
+            this.goalsAgainst = Goals.zero();
+        }
+        if (goalsWin == null) {
+            this.goalsWin = Goals.zero();
+        }
+        if (points == null) {
+            this.points = Points.zero();
+        }
+        
+
+        if (debts == null) {
+            this.debts = new HashSet<>();
+        }
+        if (matchStats == null) {
+            this.matchStats = new HashSet<>();
+        }
+    }
+}
+public class PlayerDebt extends Debt {
+    private Player player;
+    
+    protected void validatePlayerDebt() {
+        super.validateDebt();
+        
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
+    }
+}
+
+
+public class PlayerMatchStats extends BaseEntity {
+    private UUID id;
+    private Player player;
+    private Match match;
+    private Goals goals;
+    private boolean attended;
+    private JerseyNumber jerseyNumber;
+    private Cards cards;
+    
+    protected void validatePlayerMatchStats() {
+        super.validateId();
+        
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
+        if (match == null) {
+            throw new IllegalArgumentException("Match cannot be null");
+        }
+        if (goals == null) {
+            this.goals = Goals.zero();
+        }
+        if (jerseyNumber == null) {
+            throw new IllegalArgumentException("Jersey number cannot be null");
+        }
+        if (cards == null) {
+            this.cards = Cards.none();
+        }
+        
+    }
+}
+
+
+public class RefereePayment extends BaseEntity {
+    private UUID id;
+    private User referee;
+    private PaymentDate paymentDate;
+    private double hoursWorked;
+    private Money hourlyRate;
+    private Money amount;
+    private String description;
+    protected void validateRefereePayment() {
+        super.validateId();
+        
+        if (referee == null) {
+            throw new IllegalArgumentException("Referee cannot be null");
+        }
+        if (paymentDate == null) {
+            throw new IllegalArgumentException("Payment date cannot be null");
+        }
+        if (hoursWorked <= 0) {
+            throw new IllegalArgumentException("Hours worked must be positive");
+        }
+        if (hourlyRate == null || hourlyRate.isNegative()) {
+            throw new IllegalArgumentException("Hourly rate must be positive");
+        }
+        if (amount == null || amount.isNegative()) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        
+        // Validate that amount equals hoursWorked * hourlyRate
+        Money calculatedAmount = hourlyRate.multiply(hoursWorked);
+        if (!amount.equals(calculatedAmount)) {
+            throw new IllegalArgumentException("Amount must equal hours worked multiplied by hourly rate");
+        }
+    }
+}
+
+
+public abstract class Stats extends BaseEntity {
+    private int wins;
+    private int losses;
+    private int draws;
+    private int pointsFor;
+    private int pointsAgainst;
+    
+    protected void validateStats() {
+        if (wins < 0 || losses < 0 || draws < 0) {
+            throw new IllegalArgumentException("Wins, losses and draws cannot be negative");
+        }
+        if (pointsFor < 0 || pointsAgainst < 0) {
+            throw new IllegalArgumentException("Points cannot be negative");
+        }
+    }
+}
+
+public class Team extends AggregateRoot {
+    private UUID id;
+    private TeamName name;
+    private TeamLogo logo;
+    private Category category;
+    private ContactInfo contactInfo;
+    private int numberOfPlayers;
+    private Set<Player> players;
+    private Set<TeamDebt> debts;
+    private Goals goalsWin;
+    private Goals goalsAgainst;
+    private Points points;
+    private TeamStats stats;
+    private Set<TeamResult> homeResults;
+    private Set<TeamResult> awayResults;
+
+    protected void validateTeam() {
+        super.validateId();
+
+        if (name == null) {
+            throw new IllegalArgumentException("Team name cannot be null");
+        }
+        if (category == null) {
+            throw new IllegalArgumentException("Category cannot be null");
+        }
+        if (contactInfo == null) {
+            throw new IllegalArgumentException("Contact info cannot be null");
+        }
+        if (numberOfPlayers < 0) {
+            throw new IllegalArgumentException("Number of players cannot be negative");
+        }
+        if (players == null) {
+            this.players = new HashSet<>();
+        }
+        if (debts == null) {
+            this.debts = new HashSet<>();
+        }
+        if (stats == null) {
+            throw new IllegalArgumentException("Team stats cannot be null");
+        }
+        if (homeResults == null) {
+            this.homeResults = new HashSet<>();
+        }
+        if (awayResults == null) {
+            this.awayResults = new HashSet<>();
+        }
+        if (goalsAgainst == null) {
+            this.goalsAgainst = Goals.zero();
+        }
+        if (goalsWin == null) {
+            this.goalsWin = Goals.zero();
+        }
+        if (points == null) {
+            this.points = Points.zero();
+        }
+
+        stats.validateStats();
+    }
+}
+
+
+public class TeamDebt extends Debt {
+    private Team team;
+    
+    protected void validateTeamDebt() {
+        super.validateDebt();
+        
+        if (team == null) {
+            throw new IllegalArgumentException("Team cannot be null");
+        }
+    }
+}
+
+public class TeamResult extends BaseEntity {
+    private UUID id;
+    private Team homeTeam;
+    private Team awayTeam;
+    private Match match;
+    private Goals homeTeamGoals;
+    private Goals awayTeamGoals;
+    private MatchResult result;
+    
+    protected void validateTeamResult() {
+        super.validateId();
+        
+        if (homeTeam == null) {
+            throw new IllegalArgumentException("Home team cannot be null");
+        }
+        if (awayTeam == null) {
+            throw new IllegalArgumentException("Away team cannot be null");
+        }
+        if (match == null) {
+            throw new IllegalArgumentException("Match cannot be null");
+        }
+        if (homeTeamGoals == null) {
+            this.homeTeamGoals = Goals.zero();
+        }
+        if (awayTeamGoals == null) {
+            this.awayTeamGoals = Goals.zero();
+        }
+        if (result == null) {
+            throw new IllegalArgumentException("Result cannot be null");
+        }
+        
+        
+    }
+    
+ 
+}
+
+public class TeamStats extends Stats {
+    private TeamStatsId id;
+    private Team team;
+    private int matchesPlayed;
+    private int goalsScored;
+    private int goalsConceded;
+    private int points;
+    private int position;
+    
+    protected void validateTeamStats() {
+        super.validateStats();
+        super.validateId();
+        
+        if (team == null) {
+            throw new IllegalArgumentException("Team cannot be null");
+        }
+        if (matchesPlayed < 0) {
+            throw new IllegalArgumentException("Matches played cannot be negative");
+        }
+        if (goalsScored < 0 || goalsConceded < 0) {
+            throw new IllegalArgumentException("Goals cannot be negative");
+        }
+        if (points < 0) {
+            throw new IllegalArgumentException("Points cannot be negative");
+        }
+        if (position < 0) {
+            throw new IllegalArgumentException("Position cannot be negative");
+        }
+    }
+}
+public class User extends Person {
+    private UUID id;
+    private Email email;
+    private PhoneNumber phoneNumber;
+    private Address address;
+    private UserCredentials credentials;
+    private UserRole role;
+    private UserStatus status;
+    private Set<Match> refereedMatches;
+    private Set<RefereePayment> payments;
+    
+    protected void validateUser() {
+        super.validatePerson();
+        super.validateId();
+        
+        if (email == null) {
+            throw new IllegalArgumentException("Email cannot be null");
+        }
+        if (phoneNumber == null) {
+            throw new IllegalArgumentException("Phone number cannot be null");
+        }
+        if (address == null) {
+            throw new IllegalArgumentException("Address cannot be null");
+        }
+        if (credentials == null) {
+            throw new IllegalArgumentException("Credentials cannot be null");
+        }
+        if (role == null) {
+            throw new IllegalArgumentException("Role cannot be null");
+        }
+        if (status == null) {
+            throw new IllegalArgumentException("Status cannot be null");
+        }
+        if (refereedMatches == null) {
+            this.refereedMatches = new HashSet<>();
+        }
+        if (payments == null) {
+            this.payments = new HashSet<>();
+        }
+    }
+}

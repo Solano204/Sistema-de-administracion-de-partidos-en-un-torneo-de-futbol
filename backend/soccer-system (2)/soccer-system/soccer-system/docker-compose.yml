@@ -1,0 +1,100 @@
+services:
+  # PostgreSQL Database with your init scripts
+  postgres:
+    image: postgres:15-alpine
+    container_name: futnext-database
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:5432"
+    volumes:
+      # Mount ALL your SQL files for automatic execution
+      - ./database/init:/docker-entrypoint-initdb.d
+      # Persistent data storage
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fut-next-network
+
+  # Spring Boot Backend
+  backend:
+    image: joshua76i/fut-backend:v2.0
+    container_name: futnext-backend
+    ports:
+      - "${BACKEND_EXTERNAL_PORT}:8080"
+    environment:
+      # Database connection to PostgreSQL container
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
+      
+      # JPA/Hibernate settings
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=${SPRING_JPA_HIBERNATE_DDL_AUTO}
+      - SPRING_JPA_SHOW_SQL=${SPRING_JPA_SHOW_SQL}
+      - SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL=${SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL}
+      
+      # CORS settings for frontend
+      - SPRING_SECURITY_CORS_ALLOWED_ORIGINS=${SPRING_SECURITY_CORS_ALLOWED_ORIGINS}
+      - SPRING_SECURITY_CORS_ALLOWED_METHODS=${SPRING_SECURITY_CORS_ALLOWED_METHODS}
+      - SPRING_SECURITY_CORS_ALLOWED_HEADERS=${SPRING_SECURITY_CORS_ALLOWED_HEADERS}
+      - SPRING_SECURITY_CORS_ALLOW_CREDENTIALS=${SPRING_SECURITY_CORS_ALLOW_CREDENTIALS}
+      
+      # JWT Configuration
+      - APP_SECURITY_JWT_SECRET_KEY=${APP_SECURITY_JWT_SECRET_KEY}
+      - APP_SECURITY_JWT_TOKEN_EXPIRATION_MS=${APP_SECURITY_JWT_TOKEN_EXPIRATION_MS}
+      - APP_SECURITY_JWT_REFRESH_EXPIRATION_MS=${APP_SECURITY_JWT_REFRESH_EXPIRATION_MS}
+      - APP_SECURITY_JWT_TOKEN_PREFIX=${APP_SECURITY_JWT_TOKEN_PREFIX}
+      - APP_SECURITY_JWT_HEADER_NAME=${APP_SECURITY_JWT_HEADER_NAME}
+      
+      # Logging
+      - LOGGING_LEVEL_ORG_HIBERNATE_SQL=${LOGGING_LEVEL_ORG_HIBERNATE_SQL}
+      - LOGGING_LEVEL_ORG_HIBERNATE_TYPE_DESCRIPTOR_SQL_BASICBINDER=${LOGGING_LEVEL_ORG_HIBERNATE_TYPE_DESCRIPTOR_SQL_BASICBINDER}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fut-next-network
+    restart: unless-stopped
+
+  # Next.js Frontend
+  frontend:
+    image: joshua76i/fut-next:v2.0
+    container_name: futnext-frontend
+    ports:
+      - "${FRONTEND_EXTERNAL_PORT}:3000"
+    environment:
+      # API URLs for different contexts
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_EXTERNAL_API_URL=${NEXT_PUBLIC_EXTERNAL_API_URL:-http://localhost:8080}
+      - NODE_ENV=${NODE_ENV:-production}
+      # Add the missing ID_ADMIN variable
+      - ID_ADMIN=${ID_ADMIN}
+      # Add other Supabase variables if needed in the container
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SUPEBASE_FOLDER_CATEGORY=${SUPEBASE_FOLDER_CATEGORY}
+      - SUPEBASE_FOLDER_TEAM=${SUPEBASE_FOLDER_TEAM}
+      - SUPEBASE_FOLDER_PLAYER=${SUPEBASE_FOLDER_PLAYER}
+      - SUPEBASE_FOLDER_USERS=${SUPEBASE_FOLDER_USERS}
+      - SUPABASE_NAME_BUCKET=${SUPABASE_NAME_BUCKET}
+    depends_on:
+      - backend
+    networks:
+      - fut-next-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  fut-next-network:
+    driver: bridge

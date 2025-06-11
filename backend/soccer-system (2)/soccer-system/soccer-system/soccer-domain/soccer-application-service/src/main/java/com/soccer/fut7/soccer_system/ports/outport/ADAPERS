@@ -1,0 +1,465 @@
+my adapters. here i have all the function that you have to meet usin the identity and the mappers like in the previous intruction that i told you public class CategoryAdapter implements CategoryRepository {
+
+    @Override
+    public Optional<Category> existCategory(UUID category) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'existCategory'");
+    }
+
+    @Override
+    public Optional<List<Category>> getAllCategories() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllCategories'");
+    }
+
+    @Override
+    public Optional<Category> getCategoryById(UUID categoryId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getCategoryById'");
+    }
+
+    @Override
+    public Optional<Category> insertCategory(Category category) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'insertCategory'");
+    }
+
+    @Override
+    public Optional<Category> updateCategory(UUID categoryId, Category updatedCategory) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateCategory'");
+    }
+
+    @Override
+    public void deleteCategory(UUID categoryId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteCategory'");
+    }
+    
+}
+
+public class DebtPlayerAdapter implements PlayerDebtRepository {
+
+    @Override
+    public Optional<PlayerDebt> insertPlayerDebt(PlayerDebt debt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'insertPlayerDebt'");
+    }
+
+    @Override
+    public Optional<Boolean> updatePlayerDebtStatus(UUID debtId, DebtStatus status, LocalDate paidDate) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updatePlayerDebtStatus'");
+    }
+
+    @Override
+    public Optional<List<PlayerDebt>> getAllPlayerDebts(UUID playerId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllPlayerDebts'");
+    }
+
+    @Override
+    public void deletePlayerDebtByDate(UUID playerId, LocalDate dueDate) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deletePlayerDebtByDate'");
+    }
+
+    @Override
+    public void deleteAllPlayerDebts(UUID playerId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteAllPlayerDebts'");
+    }
+    
+}
+public class DebtTeamAdapter implements TeamDebtRepository {
+
+    @Override
+    public Optional<TeamDebt> insertTeamDebt(TeamDebt debt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'insertTeamDebt'");
+    }
+
+    @Override
+    public Optional<Boolean> updateTeamDebtStatus(UUID debtId, DebtStatus status, LocalDate paidDate) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateTeamDebtStatus'");
+    }
+
+    @Override
+    public Optional<List<TeamDebt>> getAllTeamDebts(UUID teamId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllTeamDebts'");
+    }
+
+    @Override
+    public void deleteTeamDebtByDate(UUID teamId, LocalDate dueDate) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteTeamDebtByDate'");
+    }
+
+    @Override
+    public void deleteAllTeamDebts(UUID teamId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteAllTeamDebts'");
+    }
+    
+}
+
+public class MatchAdapter implements MatchRepository{
+
+    @Override
+    public List<CustomMatchDetails> getAllMatchesByCategory(UUID categoryId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllMatchesByCategory'");
+    }
+
+    @Override
+    public Optional<Match> updateMatchStats(UUID matchId, MatchResults matchResults) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateMatchStats'");
+    }
+
+    @Override
+    public Optional<Boolean> updateMatchStatus(UUID matchId, MatchStatus status) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateMatchStatus'");
+    }
+
+    @Override
+    public Optional<Match> createMatch(UUID team1Id, UUID team2Id, LocalDate matchDate) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createMatch'");
+    }
+
+    @Override
+    public List<Match> getMatchesByTeamWithStats(UUID teamId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getMatchesByTeamWithStats'");
+    }
+
+    @Override
+    public List<Match> getMatchesByTeamWithoutStats(UUID teamId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getMatchesByTeamWithoutStats'");
+    }
+
+    @Override
+    public Optional<Match> getMatchByIdWithoutStats(UUID matchId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getMatchByIdWithoutStats'");
+    }
+
+    @Override
+    public Optional<Match> getMatchByIdWithStats(UUID matchId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getMatchByIdWithStats'");
+    }
+
+    @Override
+    public List<Match> getMatchesBetweenTeamsWithStats(UUID team1Id, UUID team2Id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getMatchesBetweenTeamsWithStats'");
+    }
+
+    @Override
+    public List<Match> getMatchesBetweenTeamsWithoutStats(UUID team1Id, UUID team2Id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getMatchesBetweenTeamsWithoutStats'");
+    }
+    
+}
+
+public class MatchStatsAdapter implements MatchStatsRepository{
+
+    @Override
+    public Optional<Match> updateMatchStats(UUID categoryId, UUID matchId, MatchResults statsRecord) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateMatchStats'");
+    }
+
+    @Override
+    public Optional<Match> getMatchWithFullDetails(UUID categoryId, UUID matchId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getMatchWithFullDetails'");
+    }
+
+    @Override
+    public void deleteAllMatchStatsForMatch(UUID matchId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteAllMatchStatsForMatch'");
+    }
+
+    @Override
+    public void deleteAllMatchStatsForTeam(UUID teamId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteAllMatchStatsForTeam'");
+    }
+
+    @Override
+    public void deleteMatchStatEntry(UUID matchStatsId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteMatchStatEntry'");
+    }
+    
+}
+
+public class PlayerAdapter implements PlayerRepository {
+
+    @Override
+    public Set<Player> getPlayersOrganizedByPoints(UUID categoryId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getPlayersOrganizedByPoints'");
+    }
+
+    @Override
+    public Optional<Player> registerPlayerWithBasicInfo(Player player) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'registerPlayerWithBasicInfo'");
+    }
+
+    @Override
+    public Optional<Boolean> registerBatchPlayerWithBasicInfo(Set<Player> player) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'registerBatchPlayerWithBasicInfo'");
+    }
+
+    @Override
+    public Optional<Player> updatePlayerBasicInfo(Player player) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updatePlayerBasicInfo'");
+    }
+
+    @Override
+    public Optional<Boolean> updatePhotoIdUser(UUID playerId, String photoId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updatePhotoIdUser'");
+    }
+
+    @Override
+    public Optional<Player> getPlayerFullDetails(UUID playerId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getPlayerFullDetails'");
+    }
+
+    @Override
+    public Optional<Player> updatePlayerPositionStats(UUID playerId, GoalsRecord goalsRecord,
+            PointsRecord pointsRecord) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updatePlayerPositionStats'");
+    }
+
+    @Override
+    public void deleteAllPlayersFromTeam(UUID teamId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteAllPlayersFromTeam'");
+    }
+
+    @Override
+    public void removePlayerFromTeam(UUID playerId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'removePlayerFromTeam'");
+    }
+    
+}
+
+public class PlayerStatsAdapter implements PlayerStatsRepository {
+
+    @Override
+    public Optional<PlayerMatchStats> createPlayerStatsFromMatch(PlayerMatchStats statsRecord) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createPlayerStatsFromMatch'");
+    }
+
+    @Override
+    public void updatePlayerStats(PlayerMatchStats statsRecord) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updatePlayerStats'");
+    }
+
+    @Override
+    public void deletePlayerStat(UUID playerId, UUID matchId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deletePlayerStat'");
+    }
+
+    @Override
+    public void deleteAllUserStatsFromMatch(UUID matchId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteAllUserStatsFromMatch'");
+    }
+
+    @Override
+    public void deleteUserStatFromMatch(UUID matchId, UUID userId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteUserStatFromMatch'");
+    }
+    
+}
+public class RefereeAdapter implements RefereeRepository {
+
+    @Override
+    public void deleteReferee(UUID refereeId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteReferee'");
+    }
+    
+}
+
+public class RefereePaymentAdapter implements RefereePaymentRepository{
+
+    @Override
+    public Optional<List<RefereePayment>> getAllPaymentsForReferee(UUID refereeId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllPaymentsForReferee'");
+    }
+
+    @Override
+    public Optional<RefereePayment> insertRefereePayment(RefereePayment payment) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'insertRefereePayment'");
+    }
+
+    @Override
+    public Optional<List<RefereePayment>> getPaymentsByDate(LocalDate paymentDate) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getPaymentsByDate'");
+    }
+    
+}
+
+@Component
+@RequiredArgsConstructor
+public class TeamAdapter implements TeamRepository {
+    private final TeamRepositoryData  teamRepositoryData;
+  
+
+    @Override
+    public void deleteTeam(UUID team) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteTeam'");
+    }
+
+    @Override
+    public void updateTeamDetails(Team team) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateTeamDetails'");
+    }
+
+    @Override
+    public Optional<Team> createTeam(Team team) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createTeam'");
+    }
+
+    @Override
+    public Optional<Team> getTeam(UUID team) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getTeam'");
+    }
+
+    @Override
+    public void deleteTeamByCategory(UUID categoryId, UUID teamId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteTeamByCategory'");
+    }
+
+    @Override
+    public void deleteAllTeamsByCategory(UUID categoryId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteAllTeamsByCategory'");
+    }
+
+    @Override
+    public Optional<Team> updateTeamByCategory(UUID categoryId, UUID teamId, Team updatedTeam) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateTeamByCategory'");
+    }
+
+    @Override
+    public Optional<Team> updateTeamNameOrLogo(UUID teamId, String name, String logo) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateTeamNameOrLogo'");
+    }
+
+    @Override
+    public Optional<Boolean> existTeam(UUID team) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'existTeam'");
+    }
+
+    @Override
+    public Optional<Set<TeamStats>> getTeamsByPosition(UUID categoryId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getTeamsByPosition'");
+    }
+
+    @Override
+    public Optional<Team> getTeamNameIdByNameAndCategory(String teamName, UUID categoryId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getTeamNameIdByNameAndCategory'");
+    }
+
+}public class UserAdapter implements UserRepository {
+
+    @Override
+    public Optional<User> insertUser(User refereeRecord) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'insertUser'");
+    }
+
+    @Override
+    public Optional<User> updateBasicInformation(UUID refereeId, Person updatedDetails) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateBasicInformation'");
+    }
+
+    @Override
+    public Optional<User> updatePhotoProfile(UUID refereeId, String photoUrl) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updatePhotoProfile'");
+    }
+
+    @Override
+    public Optional<List<User>> getAllUser(UserRole role) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllUser'");
+    }
+
+    @Override
+    public Optional<User> getUserByRole(UserRole role) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getUserByRole'");
+    }
+
+    @Override
+    public Optional<Boolean> updateStatus(UUID refereeId, UserStatus status) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateStatus'");
+    }
+
+    @Override
+    public void deleteUser(UUID userId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+    }
+
+    @Override
+    public Optional<String> updateProfilePhoto(UUID userId, String photoUrl) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateProfilePhoto'");
+    }
+
+    @Override
+    public Optional<User> loginUser(String username, String password) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'loginUser'");
+    }
+
+    @Override
+    public Optional<Boolean> changeUserPassword(UUID userId, String currentPassword, String newPassword) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'changeUserPassword'");
+    }
+    
+}
+

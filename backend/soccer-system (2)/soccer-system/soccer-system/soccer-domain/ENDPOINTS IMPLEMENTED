@@ -1,0 +1,109 @@
+
+public interface CategoryApplicationService {
+    Set<CategoryInfoRecord> getAllCategories();
+    CategoryInfoRecord getCategoryById(UUID categoryId);
+    CategoryInfoRecord insertCategory(CategoryInfoRecord category);
+    CategoryInfoRecord updateCategory(UUID categoryId, CategoryInfoRecord updatedCategory);
+    void deleteCategory(UUID categoryId);
+    boolean existCategory(UUID categoryId);
+}
+
+public interface DebtPlayerApplicationService {
+    DebtRecordDto insertPlayerDebt(DebtRecordDto debt);
+    Boolean updatePlayerDebtStatus(UUID debtId, DebtStatus status, LocalDate paidDate);
+    Set<DebtRecordDto> getAllPlayerDebts(UUID playerId);
+    void deletePlayerDebtByDate(UUID playerId, LocalDate dueDate);
+    void deleteAllPlayerDebts(UUID playerId);
+}public interface DebtTeamApplicationService {
+    DebtRecordDto insertTeamDebt(DebtRecordDto debt);
+    Boolean updateTeamDebtStatus(UUID debtId, DebtStatus status, LocalDate paidDate);
+    Set<DebtRecordDto> getAllTeamDebts(UUID teamId);
+    void deleteTeamDebtByDate(UUID teamId, LocalDate dueDate);
+    void deleteAllTeamDebts(UUID teamId);
+}
+public interface MatchApplicationService {
+    Set<MatchTinyDetails> getAllMatchesByCategory(UUID categoryId);
+    Match updateMatchStats(UUID matchId, MatchResults matchResults);
+    Boolean updateMatchStatus(UUID matchId, MatchStatus status);
+    Match createMatch(UUID team1Id, UUID team2Id, LocalDate matchDate, UUID refereeId);
+    List<Match> getMatchesByTeamWithStats(UUID teamId);
+    List<Match> getMatchesByTeamWithoutStats(UUID teamId);
+    Match getMatchByIdWithoutStats(UUID matchId);
+    Match getMatchByIdWithStats(UUID matchId);
+    List<Match> getMatchesBetweenTeamsWithStats(UUID team1Id, UUID team2Id);
+    List<Match> getMatchesBetweenTeamsWithoutStats(UUID team1Id, UUID team2Id);
+}public interface PlayerApplicationService {
+    
+    Set<PlayerOrganizedRecord> getPlayersOrganizedByPoints(UUID categoryId);
+    
+    Player registerBasicPlayer(PlayerCreateRecord playerCreate);
+    
+    PlayerDetailsRecord getPlayerFullDetails(UUID playerId);
+    
+    Player updatePlayerPositionStats(UUID playerId, GoalsRecord goalsRecord, PointsRecord pointsRecord,CardsRecord card);
+    
+    Boolean updatePhotoIdUser(UUID playerId, String photoId);
+    
+    void deleteAllPlayersFromTeam(UUID teamId);
+    
+    void removePlayerFromTeam(UUID playerId);
+    
+    Boolean updateBasicInformation(Set<PlayerCreateRecord> playerCreate);
+}public interface RefereeApplicationService {
+
+    Set<UserDetailsRecordFull> getAllReferees();
+
+    UserDetailsRecordFull insertReferee(UserRegisterRecord refereeRecord);
+
+    Boolean changeStatusReferee(UserStatus status, UUID refereeId);
+
+    void updateUserDetails(UUID refereeId, UserUpdateBasicInformation updatedDetails);
+
+    void deleteReferee(UUID refereeId);
+
+    void updateRefereeProfilePhoto(UserUpdateProfilePhoto photoUpdate);
+}public interface RefereePaymentApplicationService {
+
+    Set<RefereePaymentDetailsRecord> getAllPaymentsForReferee(UUID refereeId);
+
+    RefereePaymentDetailsRecord insertRefereePayment(RefereePayment payment);
+
+    Set<RefereePaymentDetailsRecord> getPaymentsByDate(LocalDate paymentDate);
+}
+public interface TeamApplicationService {
+
+    TeamDetailsRecord createNewTeam(TeamCreateRecord newTeam);
+    Boolean existTeam(UUID newTeam);
+ 
+    
+    TeamDetailsRecord getTeamWithoutPlayers(UUID teamId, UUID categoryId);
+
+    TeamWithPlayersRecord getTeamsNameIdByCategoryWithPlayers(UUID categoryId, UUID teamId);
+
+    void deleteTeamByCategory(UUID categoryId, UUID teamId);
+    void deleteAllTeamByCategory(UUID categoryId);
+    TeamDetailsRecord updateTeamByCategory(UUID categoryId, UUID teamId, TeamDetailsRecord updatedTeam);
+    public Set<TeamScore> getTeamsByPosition(UUID categoryId);
+    public TeamDetailsRecord updateTeamByCategoryWithLogoOrName(UUID categoryId, UUID teamId, String logo, String name); 
+        
+
+}
+
+public interface UserApplicationService {
+
+    void updateUserProfilePhoto(UserUpdateProfilePhoto photoUpdate);
+
+    void updateUserDetails(UUID refereeId, UserUpdateBasicInformation updatedDetails);
+
+    Set<UserDetailsRecordFull> getAllUser(UserRole role);
+
+    UserDetailsRecordFull insertUser(UserRegisterRecord refereeRecord);
+
+    Boolean updateStatusUser(UserStatus status, UUID userId);
+
+    void deleteUser(UUID userId);
+
+    UserDetailsRecordFullWithPassword loginUser(UserLoginRecord refereeRecord);
+
+    Boolean changeUserPassword(UUID userId, String currentPassword, String newPassword);
+}

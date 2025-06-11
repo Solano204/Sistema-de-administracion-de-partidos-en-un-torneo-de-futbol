@@ -1,0 +1,1 @@
+export type {InfoBasicPlayer, InfoPlayerForm, PropsPlayer,Person,PropsTeam,ROLE,STATUSPLAYER,StateType, StatsFormData,StatsFormHandle,dataTeam,Cards,PlayerStatsUpdateRequest,Goals, Points,PlayerCreateRecord,PlayerDetailsRecord,PlayerOrganizedRecord,PlayerStatus} from "./types/TypesPlayer";

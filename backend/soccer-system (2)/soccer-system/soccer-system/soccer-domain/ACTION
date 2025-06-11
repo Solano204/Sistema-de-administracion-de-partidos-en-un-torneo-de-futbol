@@ -1,0 +1,333 @@
+dtos
+
+I wanna create the actions but complete with all clasess 
+(All action from the repository)
+(All action from the Service)
+(All action from the Handler)
+(All action from the helper)
+I'll pass you the entities and valuesObjects
+I'll pass ya the records  
+I'll pass ya the mappers
+
+USER ACTIONS
+*User register (with all atributes etc) 
+*User login (user,paswword,role)
+*User with all information with all its information
+*User with the role of the referee, other with the role of the administrator, with the role of the user here also i show the (user details and role)
+*Change the password of a user
+* Delete a user from a id
+
+
+REFEREE ACTIONS
+* Get all the referre with details( WITHOUT PASSWORD)
+* Insert a new Referee with all details ( )
++ update the details from a referee ( without password) 
++delete a referee by id
++ update the profile photo  
+
+USER ACTIONS
+* Get all the user with details( WITHOUT PASSWORD)
+* Insert a new user with all details ( )
++ update the details from a user ( without password) 
++ delete a referee by id
++ update the profile photo  
+
+
+PAYMENT REFEREE ACTIONS
++Get all the payment with all details of a referee
++Insert a new payment with all details
++ Get all the payment a certain date 
+
+CATEGORY ACTIONS
++Get all the categories
++Insert a new Category
++Update a categories 
++delete a category
+
+
+PLAYER ACTIONS
+* orginize the players with the most points( i wanna for each name,id,goalsand points,nameTeam)
+* register a new player only with  the name because the debt,matchStast,goals and points will be empty becasue is a new player
+* get a certain player with all its informaiton ( name,age,dateBirth,goals(both),points)
+*Update the playerPositionsStast(goals,points)
++Delete alll player from a team
++Delete a user from a team
+
+
+DEBT PLAYER ACTIONS
++Insert a debt for a user
++Update a debt for a user (here only i be updatin' the status and the endPaid)
+*Get all debst for a user (with all information about the debt and only the name and id of the user)
++ delete a debt for a user and date
++ delete a debts for a user 
+
+
+DEBT TEAM ACTIONS 
++Insert a debt for a team
++Update a debt for a team (here only i be updatin' the status and the endPaid)
+*Get all debst for a team (with all information about the debt and only the name and id of the team)
++ delete a debt for a team and date
++ delete a debts for a team
+
+
+MATCH 
+*Get all matches from a category  (only the idMatch,NameTeam1 and nameTeam2 NOT DATE )
++update the stats from a match 
++update the status from a match 
++create a match only with the (idTeam1,idTeam2,Date)
++Get all matches from a teamId with the stats
++Get all matches from a teamId without the stats
++Get all matches from A idMatch without the stats
++Get all matches from A idMatch with the stats
++Get all matches from a team1Id and team2Id  with Stats
++Get all matches from a team1Id and team2Id  withtout stats
+
+
+
+
+MATCTH STAST
++Update a statsmatch  from a category and idMatch
++Get a macth from a category (with all information and inclusive the stast)
++Delete all statsMatch from a match or Team
++ Delete a statsMatch from a match or Team
+
+PLAYER STAST
++Create a player Stats from a match
++ update the stast of player with all information from a match
++ delete a stast from a player
++Delete all userStats from a match
++ Delete a userStats from a match and userId
+
+
+*Team to get with all its information (without all palyers AND other with all players(also with all information about the players, name,numberJeysey,) ,
+* Team with commandHandler to resgister a new team with all its information and also with all employes(the way most efficient POSSIBLE (in this first i need register the team, after will fillin' the array of employees and the final will register the employes  this is a manner my is there is a better that can convert more faster my code better)
+*a dto to insert the information about a match that just played but i need register all stats about this match (Here i need to affect the resultAbout the team, and the playerMatchs, see you can work with this entities or i neeed modify it), within this transaction also i need to affect the entities players and match ( the points, goals (both) to follow the starts in realTime)
+*Also a  to get the information about the matchStats the same ways all information the players and match stasts)
+* A dtp tp get all teams that belong to the one category (a with only number about the teams, and only where i see all teams teams information (only the name, goals and points))
+* Team to get all players in the team ( number of the players), thus ya try to make this action the most fastest possible with the best practice,
+    
+*Team with only the attribute or attributes that i wanna change ( the way most efficient to avoid create several methods to change a specific thin') 
+*player with only the attribute or attributes that i wanna change ( the way most efficient to avoid create several methods to change a specific thin') 
+*Category info (name and ageRange)
+*To insert a debtPlayer with all information possible
+*
+* To insert a debTtEAM with all information possible
+* to get the debtPlayer with all  information possible 
+* to gte the debtTeam with sll iinformation possible
+
+
+*From those dtos i wanna create the action in the application-folder that will get these dtos and convert them to entities of the domain, these entities of domain will be send them to the repository(that implemet the outports) that accept these entities domain, these i make like this because the project will be splitted in 3 layers, the first will be the applicationclient that send these entities or commandHandlers ( Dtos) to the application domain,after the application domain use tha mapper to pass them to these entities domain using mapper ( inclusive here i wanna a library external to mapped these entities, during these method that will handle all the validation apart of the entities, joini the object and entities and after send them to the entities that will recive these repository( that will mapped to entitiesRepository to hit the database in this potsgrest)  these repository will be implemtin' the putports and make the certain actions to get the goal, BUT NOW ONLY I WANNA YOU MAKE THE APPLICATION ACTION TO UP-LEVEL WITHOUT IMPLEMENTATION OF THE REPOSITORY OR CLIENT
+
+
+
+Repository all the previous action the first stage will get these commanHandler or entities from the Layer APPLICATION when i recive these entities and after will mapped to entitiesRepository to be able to make the operation in the database, each operation that is a implementation of the outport, will get these eneitites and usin' the repository will insert or query or other actions in the database, and the response entities will be the same entities-domain to response to the APPLICATION-LAYER and this can send it To the CLIENT APPLICATION,IN THIS CASE ONLY I WANNA YOU MAKE THE LAYER-REPOSITORY (The APPLICATION-LAYERS AND CLIENT-LAYER WILL IMPLEMENT AFTER NOW ONLY THE REPOSITORY DATABASE LAYER)
+
+The CLIENT-LAYER will recive the entities like commandWriter or commanQuery and send to them' to he APPLICATION-LAYER, then for each these operation will be RESPOINT that will receive these entities USING BODY EntitiyResponse also the response and request
+
+points (lack of)
+veteranos (33 - infinite)
+sub2( 21-23)dtos
+
+I wanna create the actions but complete with all clasess 
+(All action from the repository)
+(All action from the Service)
+(All action from the Handler)
+(All action from the helper)
+I'll pass you the entities and valuesObjects
+I'll pass ya the records  
+I'll pass ya the mappers
+
+USER ACTIONS
+*User register (with all atributes etc) 
+*User login (user,paswword,role)
+*User with all information with all its information
+*User with the role of the referee, other with the role of the administrator, with the role of the user here also i show the (user details and role)
+
+
+REFEREE ACTIONS
+* Get all the referre with details(name and id)
+* Insert a new Referee with all details
+
+
+PAYMENT REFEREE ACTIONS
++Get all the payment with all details of a referee
++Insert a new payment with all details
+
+CATEGORY ACTIONS
++Get all the categories
++Insert a new Category
+
+PLAYER ACTIONS
+* orginize the players with the most points( i wanna for each name,id,goalsand points,nameTeam)
+* register a new player only with  the name because the debt,matchStast,goals and points will be empty becasue is a new player
+* get a certain player with all its informaiton ( name,age,dateBirth,goals(both),points)
+*Update the playerPositionsStast(goals,points)
++Delete alll player from a team
++Delete a user from a team
+
+
+DEBT PLAYER ACTIONS
++Insert a debt for a user
++Update a debt for a user (here only i be updatin' the status and the endPaid)
+*Get all debst for a user (with all information about the debt and only the name and id of the user)
+
+
+DEBT TEAM ACTIONS 
++Insert a debt for a team
++Update a debt for a team (here only i be updatin' the status and the endPaid)
+*Get all debst for a team (with all information about the debt and only the name and id of the team)
+
+
+
+MATCH 
+*Get all matches from a category  (only the idMatch,NameTeam1 and nameTeam2)
++update the stats from a match 
++create a match only with the (idTeam1,idTeam2,Date)
++Get all matches from a teamId
++Get all matches from a team1Id and team2Id 
+
+
+
+MATCTH STAST
++Update a statsmatch  from a category and idMatch
++Get a macth from a category (with all information and inclusive the stast)
++Delete all statsMatch from a match or Team
++ Delete a statsMatch from a match or Team
+
+PLAYER STAST
++Create a player Stats from a match
++ update the stast of player with all information from a match
++ delete a stast from a player
++Delete all userStats from a match
++ Delete a userStats from a match
+
+*Team to get with all its information (without all palyers AND other with all players(also with all information about the players, name,numberJeysey,) ,
+* Team with commandHandler to resgister a new team with all its information and also with all employes(the way most efficient POSSIBLE (in this first i need register the team, after will fillin' the array of employees and the final will register the employes  this is a manner my is there is a better that can convert more faster my code better)
+*a dto to insert the information about a match that just played but i need register all stats about this match (Here i need to affect the resultAbout the team, and the playerMatchs, see you can work with this entities or i neeed modify it), within this transaction also i need to affect the entities players and match ( the points, goals (both) to follow the starts in realTime)
+*Also a  to get the information about the matchStats the same ways all information the players and match stasts)
+* A dtp tp get all teams that belong to the one category (a with only number about the teams, and only where i see all teams teams information (only the name, goals and points))
+* Team to get all players in the team ( number of the players), thus ya try to make this action the most fastest possible with the best practice,
+    
+*Team with only the attribute or attributes that i wanna change ( the way most efficient to avoid create several methods to change a specific thin') 
+*player with only the attribute or attributes that i wanna change ( the way most efficient to avoid create several methods to change a specific thin') 
+*Category info (name and ageRange)
+*To insert a debtPlayer with all information possible
+*
+* To insert a debTtEAM with all information possible
+* to get the debtPlayer with all  information possible 
+* to gte the debtTeam with sll iinformation possible
+
+
+*From those dtos i wanna create the action in the application-folder that will get these dtos and convert them to entities of the domain, these entities of domain will be send them to the repository(that implemet the outports) that accept these entities domain, these i make like this because the project will be splitted in 3 layers, the first will be the applicationclient that send these entities or commandHandlers ( Dtos) to the application domain,after the application domain use tha mapper to pass them to these entities domain using mapper ( inclusive here i wanna a library external to mapped these entities, during these method that will handle all the validation apart of the entities, joini the object and entities and after send them to the entities that will recive these repository( that will mapped to entitiesRepository to hit the database in this potsgrest)  these repository will be implemtin' the putports and make the certain actions to get the goal, BUT NOW ONLY I WANNA YOU MAKE THE APPLICATION ACTION TO UP-LEVEL WITHOUT IMPLEMENTATION OF THE REPOSITORY OR CLIENT
+
+
+
+Repository all the previous action the first stage will get these commanHandler or entities from the Layer APPLICATION when i recive these entities and after will mapped to entitiesRepository to be able to make the operation in the database, each operation that is a implementation of the outport, will get these eneitites and usin' the repository will insert or query or other actions in the database, and the response entities will be the same entities-domain to response to the APPLICATION-LAYER and this can send it To the CLIENT APPLICATION,IN THIS CASE ONLY I WANNA YOU MAKE THE LAYER-REPOSITORY (The APPLICATION-LAYERS AND CLIENT-LAYER WILL IMPLEMENT AFTER NOW ONLY THE REPOSITORY DATABASE LAYER)
+
+The CLIENT-LAYER will recive the entities like commandWriter or commanQuery and send to them' to he APPLICATION-LAYER, then for each these operation will be RESPOINT that will receive these entities USING BODY EntitiyResponse also the response and request
+
+points (lack of)
+veteranos (33 - infinite)
+sub2( 21-23)dtos
+
+I wanna create the actions but complete with all clasess 
+(All action from the repository)
+(All action from the Service)
+(All action from the Handler)
+(All action from the helper)
+I'll pass you the entities and valuesObjects
+I'll pass ya the records  
+I'll pass ya the mappers
+
+USER ACTIONS
+*User register (with all atributes etc) 
+*User login (user,paswword,role)
+*User with all information with all its information
+*User with the role of the referee, other with the role of the administrator, with the role of the user here also i show the (user details and role)
+
+
+REFEREE ACTIONS
+* Get all the referre with details(name and id)
+* Insert a new Referee with all details
+
+
+PAYMENT REFEREE ACTIONS
++Get all the payment with all details of a referee
++Insert a new payment with all details
+
+CATEGORY ACTIONS
++Get all the categories
++Insert a new Category
+
+PLAYER ACTIONS
+* orginize the players with the most points( i wanna for each name,id,goalsand points,nameTeam)
+* register a new player only with  the name because the debt,matchStast,goals and points will be empty becasue is a new player
+* get a certain player with all its informaiton ( name,age,dateBirth,goals(both),points)
+*Update the playerPositionsStast(goals,points)
++Delete alll player from a team
++Delete a user from a team
+
+
+DEBT PLAYER ACTIONS
++Insert a debt for a user
++Update a debt for a user (here only i be updatin' the status and the endPaid)
+*Get all debst for a user (with all information about the debt and only the name and id of the user)
+
+
+DEBT TEAM ACTIONS 
++Insert a debt for a team
++Update a debt for a team (here only i be updatin' the status and the endPaid)
+*Get all debst for a team (with all information about the debt and only the name and id of the team)
+
+
+
+MATCH 
+*Get all matches from a category  (only the idMatch,NameTeam1 and nameTeam2)
++update the stats from a match 
++create a match only with the (idTeam1,idTeam2,Date)
++Get all matches from a teamId
++Get all matches from a team1Id and team2Id 
+
+
+
+MATCTH STAST
++Update a statsmatch  from a category and idMatch
++Get a macth from a category (with all information and inclusive the stast)
++Delete all statsMatch from a match or Team
++ Delete a statsMatch from a match or Team
+
+PLAYER STAST
++Create a player Stats from a match
++ update the stast of player with all information from a match
++ delete a stast from a player
++Delete all userStats from a match
++ Delete a userStats from a match
+
+*Team to get with all its information (without all palyers AND other with all players(also with all information about the players, name,numberJeysey,) ,
+* Team with commandHandler to resgister a new team with all its information and also with all employes(the way most efficient POSSIBLE (in this first i need register the team, after will fillin' the array of employees and the final will register the employes  this is a manner my is there is a better that can convert more faster my code better)
+*a dto to insert the information about a match that just played but i need register all stats about this match (Here i need to affect the resultAbout the team, and the playerMatchs, see you can work with this entities or i neeed modify it), within this transaction also i need to affect the entities players and match ( the points, goals (both) to follow the starts in realTime)
+*Also a  to get the information about the matchStats the same ways all information the players and match stasts)
+* A dtp tp get all teams that belong to the one category (a with only number about the teams, and only where i see all teams teams information (only the name, goals and points))
+* Team to get all players in the team ( number of the players), thus ya try to make this action the most fastest possible with the best practice,
+    
+*Team with only the attribute or attributes that i wanna change ( the way most efficient to avoid create several methods to change a specific thin') 
+*player with only the attribute or attributes that i wanna change ( the way most efficient to avoid create several methods to change a specific thin') 
+*Category info (name and ageRange)
+*To insert a debtPlayer with all information possible
+*
+* To insert a debTtEAM with all information possible
+* to get the debtPlayer with all  information possible 
+* to gte the debtTeam with sll iinformation possible
+
+
+*From those dtos i wanna create the action in the application-folder that will get these dtos and convert them to entities of the domain, these entities of domain will be send them to the repository(that implemet the outports) that accept these entities domain, these i make like this because the project will be splitted in 3 layers, the first will be the applicationclient that send these entities or commandHandlers ( Dtos) to the application domain,after the application domain use tha mapper to pass them to these entities domain using mapper ( inclusive here i wanna a library external to mapped these entities, during these method that will handle all the validation apart of the entities, joini the object and entities and after send them to the entities that will recive these repository( that will mapped to entitiesRepository to hit the database in this potsgrest)  these repository will be implemtin' the putports and make the certain actions to get the goal, BUT NOW ONLY I WANNA YOU MAKE THE APPLICATION ACTION TO UP-LEVEL WITHOUT IMPLEMENTATION OF THE REPOSITORY OR CLIENT
+
+
+
+Repository all the previous action the first stage will get these commanHandler or entities from the Layer APPLICATION when i recive these entities and after will mapped to entitiesRepository to be able to make the operation in the database, each operation that is a implementation of the outport, will get these eneitites and usin' the repository will insert or query or other actions in the database, and the response entities will be the same entities-domain to response to the APPLICATION-LAYER and this can send it To the CLIENT APPLICATION,IN THIS CASE ONLY I WANNA YOU MAKE THE LAYER-REPOSITORY (The APPLICATION-LAYERS AND CLIENT-LAYER WILL IMPLEMENT AFTER NOW ONLY THE REPOSITORY DATABASE LAYER)
+
+The CLIENT-LAYER will recive the entities like commandWriter or commanQuery and send to them' to he APPLICATION-LAYER, then for each these operation will be RESPOINT that will receive these entities USING BODY EntitiyResponse also the response and request
+
+points (lack of)
+veteranos (33 - infinite)
+sub2( 21-23)

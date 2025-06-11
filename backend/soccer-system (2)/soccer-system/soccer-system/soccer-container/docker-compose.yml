@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    # Remove depends_on since we're not using containerized Postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/soccerdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+      # - SPRING_JPA_HIBERNATE_DDL_AUTO=
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+# Remove the postgres service and volume since we're using local Postgres

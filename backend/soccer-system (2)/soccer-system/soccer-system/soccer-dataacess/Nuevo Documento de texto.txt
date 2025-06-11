@@ -1,0 +1,96 @@
+# docker-compose down -v && docker-compose up -d
+
+
+-- RUN THIS INSIDE THE CONTAINER TO CHECK WHAT HAPPENED
+-- ====================================================
+
+-- Connect to container first:
+-- docker exec -it futnext-database psql -U admin -d futnext_db
+
+SET search_path TO fut_jaguar;
+
+\echo '🔍 DEBUGGING INITIALIZATION ISSUES'
+\echo '=================================='
+
+-- 1. Check if schema was created
+\echo ''
+\echo '📋 CHECKING SCHEMA:'
+SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'fut_jaguar';
+
+-- 2. Check when database was initialized
+\echo ''
+\echo '⏰ DATABASE CREATION TIME:'
+SELECT datname, (pg_stat_file('base/'||oid ||'/PG_VERSION')).modification as created_at
+FROM pg_database WHERE datname = current_database();
+
+-- 3. Check all objects in fut_jaguar schema
+\echo ''
+\echo '📊 ALL OBJECTS IN fut_jaguar SCHEMA:'
+SELECT 
+    schemaname,
+    objectname,
+    objecttype
+FROM (
+    SELECT schemaname, tablename as objectname, 'TABLE' as objecttype FROM pg_tables WHERE schemaname = 'fut_jaguar'
+    UNION ALL
+    SELECT n.nspname, p.proname, CASE WHEN p.prokind = 'f' THEN 'FUNCTION' ELSE 'PROCEDURE' END 
+    FROM pg_proc p JOIN pg_namespace n ON p.pronamespace = n.oid WHERE n.nspname = 'fut_jaguar'
+    UNION ALL
+    SELECT schemaname, viewname, 'VIEW' FROM pg_views WHERE schemaname = 'fut_jaguar'
+) objects
+ORDER BY objecttype, objectname;
+
+-- 4. Check for any dependency issues
+\echo ''
+\echo '🔗 CHECKING DEPENDENCIES:'
+SELECT 
+    p.proname as function_name,
+    p.prokind as type,
+    pg_get_function_arguments(p.oid) as arguments,
+    obj_description(p.oid, 'pg_proc') as description
+FROM pg_proc p
+JOIN pg_namespace n ON p.pronamespace = n.oid
+WHERE n.nspname = 'fut_jaguar'
+ORDER BY p.proname;
+
+-- 5. Check for any PostgreSQL errors in the logs
+\echo ''
+\echo '❌ CHECKING FOR POSTGRES ERRORS:'
+SELECT 
+    CASE 
+        WHEN EXISTS(SELECT 1 FROM pg_stat_database WHERE datname = current_database() AND xact_rollback > 0)
+        THEN 'WARNING: Some transactions were rolled back during initialization'
+        ELSE 'No rollback issues detected'
+    END as rollback_status;
+
+-- 6. Check current search_path
+\echo ''
+\echo '🗂️  CURRENT SEARCH PATH:'
+SHOW search_path;
+
+-- 7. Manual verification of your specific functions
+\echo ''
+\echo '🎯 YOUR SPECIFIC FUNCTIONS STATUS:'
+SELECT 
+    name,
+    CASE 
+        WHEN EXISTS(
+            SELECT 1 FROM pg_proc p 
+            JOIN pg_namespace n ON p.pronamespace = n.oid 
+            WHERE n.nspname = 'fut_jaguar' AND p.proname = name
+        ) 
+        THEN '✅ EXISTS'
+        ELSE '❌ MISSING' 
+    END as status
+FROM (VALUES 
+    ('initialize_tournament_roll'),
+    ('create_tournament_divisions'),
+    ('check_tournament_stage'),
+    ('can_advance_division'),
+    ('advance_to_next_phase'),
+    ('simulate_elimination_matches'),
+    ('get_matches_in_date_range_fn')
+) AS funcs(name);
+
+\echo ''
+\echo '✅ DEBUG CHECK COMPLETE!'

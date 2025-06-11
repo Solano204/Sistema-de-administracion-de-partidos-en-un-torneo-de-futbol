@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Spring Boot Backend
+  backend:
+    image: 
+    container_name: soccer-backend
+    ports:
+      - "8080:8080"
+    environment:
+      # - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/soccerdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - soccer-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Next.js Frontend
+  frontend:
+    image: 
+    container_name: soccer-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8080  # For client-side requests (browser)
+      - API_URL=http://backend:8080  # For server-side requests (container to container)
+    depends_on:
+      - backend
+    networks:
+      - soccer-network
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: soccer-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - soccer-network
+    restart: unless-stopped
+
+networks:
+  soccer-network:
+    driver: bridge

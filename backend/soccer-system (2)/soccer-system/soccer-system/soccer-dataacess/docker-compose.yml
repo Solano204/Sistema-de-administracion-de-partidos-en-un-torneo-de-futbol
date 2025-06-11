@@ -1,0 +1,54 @@
+# docker-compose.yml - PostgreSQL + pgAdmin
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: futnext-database
+    environment:
+      POSTGRES_DB: futnext_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 1234
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      # Mount ALL your SQL files for automatic execution
+      - ./database/init:/docker-entrypoint-initdb.d
+      # Persistent data storage
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d futnext_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fut-next-network
+
+  # # pgAdmin Web Interface
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   container_name: futnext-pgadmin
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@futnext.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin123
+  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
+  #   ports:
+  #     - "8080:80"
+  #   volumes:
+  #     - pgadmin_data:/var/lib/pgadmin
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - fut-next-network
+  #   restart: unless-stopped
+
+volumes:
+  postgres_data:
+  # pgadmin_data:
+
+networks:
+  fut-next-network:
+    driver: bridge
