@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -63,11 +64,27 @@ public class SecurityConfig {
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // CRITICAL FIX: this used to permitAll() the entire "/users/**"
+                // and "/auth/**" trees. That made every UserController endpoint
+                // (list all users, change any user's status, delete any user,
+                // update any user's details/photo, fetch any user's details) and
+                // AuthController's PUT /auth/change-password/admin - which resets
+                // ANY username's password to any value with NO current-password
+                // check - reachable by anyone on the internet with no token at
+                // all. Narrowed to exactly the endpoints that have a genuine
+                // reason to be public: logging in, refreshing a token, and
+                // POST /users (self-registration - see CommandHelperUser.
+                // insertUser's own "Admin already exist" bootstrap check, which
+                // only self-limits the ADMINISTRADOR role to a one-time initial
+                // signup, not a reason to leave every other user-management
+                // endpoint open). Method-level @PreAuthorize was also added to
+                // the affected controllers as defense in depth, matching
+                // @EnableMethodSecurity already being active on this class.
+                .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/refresh").permitAll()
+                .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                .requestMatchers(HttpMethod.GET, "/users/exist-admin").permitAll()
                 .requestMatchers(
-                    // "/**",
-                    "/users/**",
-                    "/auth/**",
-                    "/swagger-ui/**", 
+                    "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/actuator/health"
                 ).permitAll()

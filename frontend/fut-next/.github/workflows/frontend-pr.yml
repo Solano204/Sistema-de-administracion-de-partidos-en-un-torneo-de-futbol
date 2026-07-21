@@ -1,0 +1,39 @@
+name: Frontend PR checks
+
+# Build validation only - no image is ever published from a pull request.
+# Split out of the old docker-build.yml (which only ran on push) so PR
+# feedback exists at all for this app; previously a PR got no CI signal.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Security audit (critical only)
+        run: npm audit --audit-level=critical
+
+      - name: Build Next.js app
+        run: npm run build

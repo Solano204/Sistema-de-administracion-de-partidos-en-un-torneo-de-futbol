@@ -92,7 +92,21 @@ public class CommandHelperUser implements UserDetailsService {
     @Transactional
     public void updateUserDetails(UUID refereeId, UserUpdateBasicInformation updatedDetails) {
 
-        if (existAdmin(UserRole.ADMINISTRADOR) && updatedDetails.role().equals(UserRole.ADMINISTRADOR)) {
+        // SECURITY FIX (found while writing CommandHelperUserTest): this guard
+        // compared a String (updatedDetails.role() - see UserUpdateBasicInformation,
+        // whose `role` field is a raw String, not UserRole) to the UserRole enum
+        // via .equals(). String#equals(Object) returns false for any non-String
+        // argument, so this condition could NEVER be true - the "only one admin"
+        // bootstrap guard was dead code on this path. Anyone could PUT
+        // /users/{userId} with role=ADMINISTRADOR and become an admin, any
+        // number of times, regardless of whether one already existed. Fixed by
+        // comparing against the enum's name() (String-to-String), matching how
+        // the role value actually arrives over the wire. The same bug existed in
+        // insertUser() below - fixed there too. NOT verified with `mvn test` /
+        // `mvn compile` in this pass (see CommandHelperUserTest.java for the
+        // regression test that exercises this exact guard) - run those before
+        // trusting this compiles and behaves as intended.
+        if (existAdmin(UserRole.ADMINISTRADOR) && UserRole.ADMINISTRADOR.name().equals(updatedDetails.role())) {
             throw new UserException("Admin already exist");
         }
         userRepository.updateBasicInformation(refereeId, userMapper.userUpdateBasicInformationToUser(updatedDetails));
@@ -207,7 +221,13 @@ public class CommandHelperUser implements UserDetailsService {
 
     public TokenResponse insertUser(UserRegisterRecord refereeRecord) {
 
-        if (existAdmin(UserRole.ADMINISTRADOR) && refereeRecord.role().equals(UserRole.ADMINISTRADOR)) {
+        // SECURITY FIX: same String-vs-enum .equals() bug as updateUserDetails()
+        // above (UserRegisterRecord.role() is also a raw String) - this bootstrap
+        // guard could never trigger, so ADMINISTRADOR self-registration via
+        // POST /users was never actually limited to once. See the comment on
+        // updateUserDetails() for full detail. NOT verified with `mvn test` /
+        // `mvn compile` in this pass.
+        if (existAdmin(UserRole.ADMINISTRADOR) && UserRole.ADMINISTRADOR.name().equals(refereeRecord.role())) {
             throw new UserException("Admin already exist");
         }
         // First transaction - insert user

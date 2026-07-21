@@ -84,7 +84,7 @@ public class TeamMapper extends BaseMapper implements EntityMapper<Team, TeamEnt
                 .active(entity.getActive())
                 .stats(teamStats != null ? toTeamStats(teamStats) : null)
                 .category(categoryMapper.toDomain(entity.getCategory()))
-                .numberOfPlayers(entity.getNumberOfPlayers());
+                .numberOfPlayers(entity.getNumberOfPlayers() != null ? entity.getNumberOfPlayers() : 0);
         
         // Map players with a reference to the team (without full team details)
         if (entity.getPlayers() != null && !entity.getPlayers().isEmpty()) {

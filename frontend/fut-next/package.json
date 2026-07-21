@@ -10,7 +10,10 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "build:emergency": "cross-env NODE_OPTIONS=--max-old-space-size=16384 WEBPACK_PARALLEL=false next build --no-lint"
+    "build:emergency": "cross-env NODE_OPTIONS=--max-old-space-size=16384 WEBPACK_PARALLEL=false next build --no-lint",
+    "analyze": "cross-env ANALYZE=true NODE_OPTIONS=--max-old-space-size=8192 next build",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@gsap/react": "^2.1.0",
@@ -67,10 +70,15 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.173.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "cross-env": "^7.0.3",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
-    "typescript": "^5"
+    "jsdom": "^25.0.1",
+    "typescript": "^5",
+    "vitest": "^3.0.5"
   },
   "overrides": {
     "react": "^19.0.0",

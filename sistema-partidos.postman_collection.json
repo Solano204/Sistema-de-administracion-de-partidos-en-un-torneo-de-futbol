@@ -1,0 +1,210 @@
+{
+  "info": {
+    "name": "sistema-partidos",
+    "description": "Soccer tournament administration backend. Auth is a Bearer JWT - run 'Login' first, it auto-captures {{access_token}}. IMPORTANT: prior to this review's fixes, every /users/** and /auth/** endpoint was unauthenticated - see REVIEW_NOTES.md. All endpoints below now require a valid token except the ones explicitly marked public.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080" },
+    { "key": "username", "value": "admin" },
+    { "key": "password", "value": "" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "categoryId", "value": "" },
+    { "key": "teamId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (self-registration, public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Doe\",\n  \"email\": \"jane@example.com\",\n  \"birthDate\": \"1995-05-20\",\n  \"age\": 30,\n  \"user\": \"janedoe\",\n  \"password\": \"Str0ngPassword!\",\n  \"role\": \"JUGADOR\",\n  \"urlPhoto\": null\n}"
+            },
+            "url": { "raw": "{{base_url}}/users", "host": ["{{base_url}}"], "path": ["users"] },
+            "description": "Public by design (bootstrap chicken-and-egg problem for the first admin). 'role' is client-supplied - self-registering as ADMINISTRADOR is blocked after the first admin exists, but ARBITRO/CAPITAN have no equivalent guard yet, see REVIEW_NOTES.md."
+          }
+        },
+        {
+          "name": "Does an admin exist yet? (public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/users/exist-admin?role=ADMINISTRADOR", "host": ["{{base_url}}"], "path": ["users", "exist-admin"], "query": [{ "key": "role", "value": "ADMINISTRADOR" }] }
+          }
+        },
+        {
+          "name": "Login (public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "const json = pm.response.json();",
+              "if (json.accessToken) pm.collectionVariables.set('access_token', json.accessToken);",
+              "if (json.refreshToken) pm.collectionVariables.set('refresh_token', json.refreshToken);"
+            ] }
+          }]
+        },
+        {
+          "name": "Refresh token (public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/refresh", "host": ["{{base_url}}"], "path": ["auth", "refresh"] }
+          }
+        },
+        {
+          "name": "Change my password (requires session)",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/auth/change-password?username={{username}}&currentPassword=oldpass&newPassword=newpass",
+              "host": ["{{base_url}}"], "path": ["auth", "change-password"],
+              "query": [{ "key": "username", "value": "{{username}}" }, { "key": "currentPassword", "value": "oldpass" }, { "key": "newPassword", "value": "newpass" }]
+            }
+          }
+        },
+        {
+          "name": "Admin: reset any user's password (requires ADMINISTRADOR)",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/auth/change-password/admin?username=someuser&newPassword=newpass",
+              "host": ["{{base_url}}"], "path": ["auth", "change-password", "admin"],
+              "query": [{ "key": "username", "value": "someuser" }, { "key": "newPassword", "value": "newpass" }]
+            },
+            "description": "CRITICAL FIX this pass - this used to be reachable with NO token at all. Now requires an ADMINISTRADOR session. See REVIEW_NOTES.md."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (admin)",
+      "item": [
+        {
+          "name": "List users by role (requires ADMINISTRADOR)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/users?role=JUGADOR", "host": ["{{base_url}}"], "path": ["users"], "query": [{ "key": "role", "value": "JUGADOR" }] }
+          }
+        },
+        {
+          "name": "Get user details (requires session)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/users/get-user-details/{{userId}}", "host": ["{{base_url}}"], "path": ["users", "get-user-details", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Update user details (requires session)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Doe Updated\"\n}" },
+            "url": { "raw": "{{base_url}}/users/{{userId}}", "host": ["{{base_url}}"], "path": ["users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Update user profile photo (requires session)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"id\": \"{{userId}}\",\n  \"profilePhoto\": \"https://example.com/photo.jpg\"\n}" },
+            "url": { "raw": "{{base_url}}/users/photo", "host": ["{{base_url}}"], "path": ["users", "photo"] }
+          }
+        },
+        {
+          "name": "Update user status (requires ADMINISTRADOR)",
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{base_url}}/users/{{userId}}/status?status=ACTIVO", "host": ["{{base_url}}"], "path": ["users", "{{userId}}", "status"], "query": [{ "key": "status", "value": "ACTIVO" }] }
+          }
+        },
+        {
+          "name": "Delete user (requires ADMINISTRADOR)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/users/{{userId}}", "host": ["{{base_url}}"], "path": ["users", "{{userId}}"] },
+            "description": "CRITICAL FIX this pass - this used to be reachable with NO token at all. Now requires an ADMINISTRADOR session."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teams (sample of the business API - requires session)",
+      "item": [
+        {
+          "name": "Create team",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Los Tigres\",\n  \"categoryId\": \"{{categoryId}}\"\n}" },
+            "url": { "raw": "{{base_url}}/teams", "host": ["{{base_url}}"], "path": ["teams"] }
+          }
+        },
+        {
+          "name": "Teams by category",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/teams/category/{{categoryId}}", "host": ["{{base_url}}"], "path": ["teams", "category", "{{categoryId}}"] }
+          }
+        },
+        {
+          "name": "Team players",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/teams/category/{{categoryId}}/team/{{teamId}}/players", "host": ["{{base_url}}"], "path": ["teams", "category", "{{categoryId}}", "team", "{{teamId}}", "players"] }
+          }
+        },
+        {
+          "name": "Update team",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Los Tigres FC\"\n}" },
+            "url": { "raw": "{{base_url}}/teams/category/{{categoryId}}/team/{{teamId}}", "host": ["{{base_url}}"], "path": ["teams", "category", "{{categoryId}}", "team", "{{teamId}}"] }
+          }
+        },
+        {
+          "name": "Delete team",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/teams/category/{{categoryId}}/team/{{teamId}}", "host": ["{{base_url}}"], "path": ["teams", "category", "{{categoryId}}", "team", "{{teamId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Actuator health (public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/actuator/health", "host": ["{{base_url}}"], "path": ["actuator", "health"] }
+          }
+        }
+      ]
+    }
+  ]
+}
