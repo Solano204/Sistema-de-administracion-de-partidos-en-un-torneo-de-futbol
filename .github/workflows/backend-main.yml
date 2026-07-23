@@ -79,3 +79,66 @@ jobs:
           path: "${{ env.BACKEND_DIR }}/**/target/surefire-reports/*.xml"
           retention-days: 7
           if-no-files-found: ignore
+
+  docker:
+    name: Build & push Docker image
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      security-events: write
+    env:
+      BACKEND_DIR: "backend/soccer-system (2)/soccer-system/soccer-system"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image (local, for scanning)
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: ${{ env.BACKEND_DIR }}
+          file: ${{ env.BACKEND_DIR }}/dockerfile
+          load: true
+          tags: ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}
+
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}
+          format: sarif
+          output: trivy-backend.sarif
+          severity: CRITICAL,HIGH
+          exit-code: "0"
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@48ab28a6f5dbc2a99bf1e0131198dd8f1df78169 # v3.28.0
+        with:
+          sarif_file: trivy-backend.sarif
+
+      - name: Push image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: ${{ env.BACKEND_DIR }}
+          file: ${{ env.BACKEND_DIR }}/dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/soccer-backend:latest
+            ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
+
+      - name: Sign image (keyless, via GitHub OIDC)
+        run: cosign sign --yes ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}

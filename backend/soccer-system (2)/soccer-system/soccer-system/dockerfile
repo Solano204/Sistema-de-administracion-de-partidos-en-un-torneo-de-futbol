@@ -35,13 +35,19 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
+# eclipse-temurin runs as root by default - was never given a non-root user.
+RUN groupadd --system spring && useradd --system --gid spring spring
+
 # Copy the jar from the builder stage - use the soccer-container jar as it has the main app
 COPY --from=builder /app/soccer-container/target/*.jar /app/app.jar
+RUN chown spring:spring /app/app.jar
+
+USER spring
 
 # Expose the port the app will run on
 EXPOSE 8080
 
-# Run the application with preview features enya abled
+# Run the application with preview features enabled
 ENTRYPOINT ["java", "--enable-preview", "-jar", "/app/app.jar"]
 
 
