@@ -38,7 +38,7 @@
              manages - NoClassDefFoundError at context startup. 2.6.0 is the last line
              compatible with Spring Boot 3.2.x. -->
         <springdoc.version>2.6.0</springdoc.version>
-        <jjwt.version>0.11.5</jjwt.version>
+        <jjwt.version>0.13.0</jjwt.version>
     </properties>
 
     <dependencyManagement>
