@@ -68,7 +68,9 @@ public class PlayerMapper extends BaseMapper implements EntityMapper<Player, Pla
             builder.birthDate(domain.getBirthDate().value());
         }
 
-        if (domain.getPlayerStatus() == null) {
+        if (domain.getPlayerStatus() != null) {
+            builder.playerStatus(domain.getPlayerStatus().toString());
+        } else {
             builder.playerStatus(PlayerStatus.ACTIVO.toString());
         }
 

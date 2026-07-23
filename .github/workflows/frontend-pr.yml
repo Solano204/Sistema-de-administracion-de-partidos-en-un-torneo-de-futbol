@@ -1,0 +1,49 @@
+name: Frontend PR checks
+
+# Build validation only - no image is ever published from a pull request.
+#
+# Moved here from frontend/fut-next/.github/workflows/ - GitHub Actions only
+# ever reads workflows from the repo root's .github/workflows/, so this had
+# never actually run once.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/fut-next/**"
+      - ".github/workflows/frontend-pr.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: frontend/fut-next
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/fut-next/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Security audit (critical only)
+        run: npm audit --audit-level=critical
+
+      - name: Build Next.js app
+        run: npm run build

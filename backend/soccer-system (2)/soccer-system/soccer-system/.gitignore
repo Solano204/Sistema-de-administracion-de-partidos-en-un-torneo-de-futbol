@@ -1,0 +1,22 @@
+# Doc 2/3/hygiene: this module had NO .gitignore at all - 49 files of Maven
+# target/ build output (compiled classes, jars) and .env (real Supabase key +
+# DB/JWT values) were tracked in a public repo as a result. See git history
+# for the cleanup.
+
+### Maven ###
+target/
+*.class
+
+### Secrets / local env ###
+.env
+.env.local
+.env.*.local
+
+### IDE ###
+.idea/
+*.iml
+.vscode/
+
+### OS ###
+.DS_Store
+Thumbs.db

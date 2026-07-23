@@ -29,9 +29,16 @@ import com.soccer.fut7.soccer_system.dto.utility.GoalsRecord;
 import com.soccer.fut7.soccer_system.dto.utility.PointsRecord;
 import com.soccer.fut7.soccer_system.ports.input.service.PlayerApplicationService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Tag(name = "Players", description = "Players attached to a team. Every endpoint requires a session.")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/players")
 @AllArgsConstructor
@@ -42,21 +49,38 @@ public class PlayerController {
     @Autowired
     private PlayerApplicationService playerApplicationService;
 
+    @Operation(summary = "List players in a category, ordered by points")
+    @ApiResponse(responseCode = "200", description = "Players returned, highest points first")
     @GetMapping("/category/{categoryId}/organized")
     public Set<PlayerOrganizedRecord> getPlayersOrganizedByPoints(@PathVariable UUID categoryId) {
         return playerApplicationService.getPlayersOrganizedByPoints(categoryId);
     }
 
+    @Operation(summary = "Register a new player")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Player created"),
+        @ApiResponse(responseCode = "401", description = "Missing or invalid token")
+    })
     @PostMapping
     public Player registerBasicPlayer(@RequestBody PlayerCreateRecord playerCreate) {
         return playerApplicationService.registerBasicPlayer(playerCreate);
     }
 
+    @Operation(summary = "Get a player's full details by id")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Player found"),
+        @ApiResponse(responseCode = "404", description = "No player exists with that id")
+    })
     @GetMapping("/{playerId}")
     public PlayerDetailsRecord getPlayerFullDetails(@PathVariable UUID playerId) {
         return playerApplicationService.getPlayerFullDetails(playerId);
     }
 
+    @Operation(summary = "Update a player's position, goals, points and cards")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Stats updated"),
+        @ApiResponse(responseCode = "404", description = "No player exists with that id")
+    })
     @PutMapping("/{playerId}/stats")
     public Player updatePlayerPositionStats(
             @PathVariable UUID playerId,
@@ -66,6 +90,11 @@ public class PlayerController {
                 statsUpdateRequest.pointsRecord(), statsUpdateRequest.card());
     }
 
+    @Operation(summary = "Update a player's profile photo")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Photo updated"),
+        @ApiResponse(responseCode = "404", description = "No player exists with that id")
+    })
     @PutMapping("/{playerId}/photo")
     public Boolean updatePhotoIdUser(
             @PathVariable UUID playerId,
@@ -73,23 +102,32 @@ public class PlayerController {
         return playerApplicationService.updatePhotoIdUser(playerId, photoId);
     }
 
+    @Operation(summary = "Delete every player from a team")
+    @ApiResponse(responseCode = "200", description = "Players deleted")
     @DeleteMapping("/team/{teamId}")
     public void deleteAllPlayersFromTeam(@PathVariable UUID teamId) {
         playerApplicationService.deleteAllPlayersFromTeam(teamId);
     }
 
+    @Operation(summary = "Remove a single player from their team")
+    @ApiResponse(responseCode = "200", description = "Player removed from team")
     @DeleteMapping("/{playerId}/team")
     public void removePlayerFromTeam(@PathVariable UUID playerId) {
         playerApplicationService.removePlayerFromTeam(playerId);
 
     }
 
+    @Operation(summary = "Remove a batch of players from a team")
+    @ApiResponse(responseCode = "200", description = "Players removed from team")
     @DeleteMapping("/deleteplayers/team/{teamId}")
     public void removePlayersFromTeam(
-        @PathVariable UUID teamId, 
+        @PathVariable UUID teamId,
         @RequestBody List<UUID> playerIds) {
         playerApplicationService.removePlayersFromTeam(teamId, playerIds);
     }
+
+    @Operation(summary = "Create a batch of players' basic information for a team")
+    @ApiResponse(responseCode = "200", description = "Players created")
     @PutMapping("/playerUpdateBatch/team/{teamId}")
     public Boolean createBasicInformationIdPlayer(@RequestBody Set<PlayerCreateRecord> playerCreate,@PathVariable UUID teamId) {
         return playerApplicationService.createBasicInformationBatchDetails(playerCreate,teamId);
@@ -106,11 +144,13 @@ public class PlayerController {
     // playerCreate) {
     // return playerApplicationService.updateBasicInformation(playerCreate);
     // }
+    @Operation(summary = "Update a batch of players' basic information")
+    @ApiResponse(responseCode = "200", description = "Players updated")
     @PutMapping("/playerUpdateBatch")
     public Boolean updateBasicInformationIdPlayer(@RequestBody Set<PlayerCreateRecord> playerCreate) {
         return playerApplicationService.updateBasicInformationBatchDetails(playerCreate);
     }
-    
-   
-  
+
+
+
 }

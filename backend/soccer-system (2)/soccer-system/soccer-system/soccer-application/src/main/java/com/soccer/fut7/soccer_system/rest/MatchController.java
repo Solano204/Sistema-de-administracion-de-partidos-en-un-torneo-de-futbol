@@ -24,8 +24,15 @@ import com.soccer.fut7.soccer_system.dto.match.MatchCreateRecord;
 import com.soccer.fut7.soccer_system.dto.match.MatchTinyDetails;
 import com.soccer.fut7.soccer_system.ports.input.service.MatchApplicationService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 
+@Tag(name = "Matches", description = "Matches within a category/tournament. Every endpoint requires a session.")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/matches")
 @AllArgsConstructor
@@ -38,14 +45,21 @@ public class MatchController {
 
 
     // This will be the jouyners
+    @Operation(summary = "List all matches in a category")
+    @ApiResponse(responseCode = "200", description = "Matches returned")
     @GetMapping("/category/{categoryId}")
     public Set<MatchTinyDetails> getAllMatchesByCategory(@PathVariable UUID categoryId) {
         return matchApplicationService.getAllMatchesByCategory(categoryId);
     }
 
 
-    // Here i need by category, tourmentId,by journeys, or by date primer o second division 
+    // Here i need by category, tourmentId,by journeys, or by date primer o second division
 
+    @Operation(summary = "Update a match's result stats")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Match updated"),
+        @ApiResponse(responseCode = "404", description = "No match exists with that id in that tournament")
+    })
     @PutMapping("/{matchId}/{tourment_Id}/updateMatchStats")
     public Match updateMatchStats(
             @PathVariable UUID matchId,
@@ -55,6 +69,11 @@ public class MatchController {
     }
 
       // Get match by ID (with stats) including tournament context
+      @Operation(summary = "Get a match by id, including stats, within a tournament")
+      @ApiResponses({
+          @ApiResponse(responseCode = "200", description = "Match found"),
+          @ApiResponse(responseCode = "404", description = "No match exists with that id in that tournament")
+      })
       @GetMapping("/{matchId}/{tournamentId}/stats")
       public Match getMatchByIdWithStats(
               @PathVariable UUID matchId,
@@ -63,7 +82,7 @@ public class MatchController {
           return match;
         }
 
-    
+
     // @PostMapping
     // public Match createMatch(
     //         @RequestBody MatchCreateRecord matchCreateRecord) {
@@ -104,7 +123,7 @@ public class MatchController {
     //     return matchApplicationService.getMatchByIdWithoutStats(matchId, tournamentId);
     // }
 
-  
+
 
     // @GetMapping("/between")
     // public List<Match> getMatchesBetweenTeamsWithStats(

@@ -1,0 +1,117 @@
+name: OpenAPI spec lint (PR)
+
+on:
+  pull_request:
+    paths:
+      - "backend/soccer-system (2)/soccer-system/soccer-system/**"
+      - ".spectral.yaml"
+      - ".github/workflows/openapi-lint-pr.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: openapi-lint-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+# NOTE: the Maven project root is nested at a path containing spaces and
+# parentheses ("soccer-system (2)") - this looks like a leftover from a zip
+# extraction, not an intentional layout. Left as-is (out of scope for this
+# workflow), but every path below has to be quoted because of it.
+env:
+  BACKEND_DIR: "backend/soccer-system (2)/soccer-system/soccer-system"
+  POSTGRES_DB: soccerdb
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: 1234
+
+jobs:
+  openapi-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: soccerdb
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: 1234
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U admin -d soccerdb"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+
+      - name: Seed schema from database/init scripts
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y postgresql-client
+          for f in "$BACKEND_DIR"/database/init/*.sql; do
+            echo "Applying $f"
+            PGPASSWORD="$POSTGRES_PASSWORD" psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+      - name: Build soccer-container
+        working-directory: ${{ env.BACKEND_DIR }}
+        run: mvn -B -DskipTests package -pl soccer-container -am
+
+      - name: Boot the app and export the OpenAPI spec
+        working-directory: ${{ env.BACKEND_DIR }}
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/soccerdb
+          SPRING_DATASOURCE_USERNAME: admin
+          SPRING_DATASOURCE_PASSWORD: 1234
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+          SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+          # Dev-only test key, same default already committed in application.yaml / .env - not a real secret.
+          APP_SECURITY_JWT_SECRET_KEY: dGVzdF9zZWNyZXRfa2V5X2Zvcl9kZXZlbG9wbWVudF9vbmx5X2RvX25vdF91c2VfaW5fcHJvZHVjdGlvbg==
+        run: |
+          jar_path=$(ls soccer-container/target/soccer-container-*.jar | grep -v original | head -n1)
+          java -jar "$jar_path" --server.port=8080 > app.log 2>&1 &
+          echo $! > app.pid
+
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/v3/api-docs -o openapi.json; then
+              echo "Spec exported after ${i} attempt(s)"
+              break
+            fi
+            sleep 2
+          done
+
+          if [ ! -s openapi.json ]; then
+            echo "Failed to fetch /v3/api-docs - app log:"
+            cat app.log
+            exit 1
+          fi
+
+      - name: Stop the app
+        if: always()
+        working-directory: ${{ env.BACKEND_DIR }}
+        run: |
+          if [ -f app.pid ]; then kill "$(cat app.pid)" || true; fi
+
+      - name: Upload generated spec
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: openapi-spec
+          path: ${{ env.BACKEND_DIR }}/openapi.json
+          if-no-files-found: ignore
+
+      - name: Lint spec with Spectral
+        working-directory: ${{ env.BACKEND_DIR }}
+        run: npx -y @stoplight/spectral-cli lint openapi.json --ruleset "$GITHUB_WORKSPACE/.spectral.yaml" --fail-severity=error

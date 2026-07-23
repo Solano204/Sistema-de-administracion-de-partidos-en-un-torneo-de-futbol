@@ -1,0 +1,32 @@
+extends: ["spectral:oas"]
+
+rules:
+  info-description: error
+  info-contact: warn
+  operation-description: warn
+  operation-operationId: warn
+  operation-tags: error
+  operation-tag-defined: error
+  # Renamed upstream from operation-2xx-response - the old name is still
+  # accepted by some Spectral internals via a stale alias table that
+  # mistranslates it to a rule name ("operation-default-response") that no
+  # longer exists either, so keeping the old name here crashes ruleset
+  # loading entirely with "Cannot extend non-existing rule".
+  operation-success-response: error
+  oas3-unused-component: error
+  no-$ref-siblings: error
+
+  # This repo's most severe past incidents were endpoints that were public
+  # when they should not have been (unauthenticated password reset, open
+  # /users/** CRUD - see REVIEW_NOTES.md). This rule does not (and cannot)
+  # detect a wrongly-public endpoint - it flags every operation that has no
+  # per-operation `security` requirement in the generated spec, whether that
+  # absence is correct (intentionally public) or not, so a human reviews the
+  # public surface on every spec change instead of it drifting silently.
+  sistema-partidos-flag-public-endpoints:
+    description: Operation has no security requirement - confirm it is meant to be public before merging.
+    severity: warn
+    given: "$.paths[*][*]"
+    then:
+      field: security
+      function: truthy

@@ -1,6 +1,5 @@
 package com.soccer.fut7.soccer_system.ports.outport;
 
-import java.lang.foreign.Linker.Option;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

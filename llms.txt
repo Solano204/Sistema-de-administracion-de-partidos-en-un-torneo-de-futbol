@@ -1,0 +1,22 @@
+# Sistema de Administración de Partidos - Backend API
+
+> REST API (Spring Boot, hexagonal architecture, PostgreSQL) for a 7-a-side soccer tournament management system: categories, teams, players, referees, matches, tournaments, inscriptions, debts and referee payments. Auth is JWT Bearer. Base URL in local dev: `http://localhost:8080`.
+
+## Start here
+
+- [Quickstart](docs/quickstart.md): first authenticated API call in under 5 minutes, copy-pasteable curl.
+- [Authentication](docs/authentication.md): the full JWT login/refresh flow, self-service password/username change, the admin-only password reset, and the role model - including the one inconsistency (role-claim format) worth knowing before writing client code.
+- [Errors](docs/errors.md): the error envelope, the full status-code-to-cause table, and the handful of endpoints that deviate from the standard shape.
+- [Live spec](http://localhost:8080/v3/api-docs) / [Swagger UI](http://localhost:8080/swagger-ui.html): generated from code (springdoc), source of truth over anything static.
+
+## Reference
+
+- [Postman collection](sistema-partidos.postman_collection.json): pre-built requests covering auth and a representative sample of the business API.
+- [Versioning & breaking-change policy](docs/versioning.md): what counts as breaking in this API and how it's communicated.
+- [Changelog](CHANGELOG.md): what changed, dated, in plain language.
+- [Interactive docs verification](docs/interactive-docs-verification.md): what's been statically checked vs. what still needs a live run against a running instance.
+
+## Context for agents making changes
+
+- [Review notes](REVIEW_NOTES.md): the security/architecture findings from the most recent full review pass - read before touching `SecurityConfig`, `GlobalExceptionHandler`, or anything under `rest/`.
+- [Spectral ruleset](.spectral.yaml) / [CI lint workflow](.github/workflows/openapi-lint.yml): the automated check that the generated spec stays valid - run `npx @stoplight/spectral-cli lint <spec> --ruleset .spectral.yaml` against a locally-exported spec before assuming a documentation change is complete.

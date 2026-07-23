@@ -1,3 +1,29 @@
+# Doc hardening notes:
+# - Was the "real" compose file among 3 that existed in this repo (the other
+#   two - soccer-container/docker-compose.yml and soccer-dataacess/
+#   docker-compose.yml - were unhardened dev-only fragments with hardcoded
+#   "1234" passwords and no healthchecks/resource limits; deleted rather than
+#   kept alongside this one). frontend/fut-next/docker-compose.yaml (blank
+#   `image:` values - would never have started) and docker-compose.prod.yml
+#   (single-service leftover) were dead duplicates too, also deleted.
+# - Added ${VAR:?required} guards on the two passwords that had none before
+#   (POSTGRES_PASSWORD, APP_SECURITY_JWT_SECRET_KEY) - same pattern already
+#   used by every other .env-driven value here.
+# - Added a backend healthcheck (there wasn't one) and gated frontend's
+#   depends_on on it being healthy, not just started.
+# - Added logging/security_opt/resource limits to all 3 services - none
+#   existed before.
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-security: &default-security
+  security_opt:
+    - no-new-privileges:true
+
 services:
   # PostgreSQL Database with your init scripts
   postgres:
@@ -6,7 +32,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "${POSTGRES_EXTERNAL_PORT}:5432"
@@ -16,6 +42,10 @@ services:
       # Persistent data storage
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    mem_limit: 512m
+    cpus: 0.5
+    logging: *default-logging
+    <<: *default-security
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -36,25 +66,25 @@ services:
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
-      
+
       # JPA/Hibernate settings
       - SPRING_JPA_HIBERNATE_DDL_AUTO=${SPRING_JPA_HIBERNATE_DDL_AUTO}
       - SPRING_JPA_SHOW_SQL=${SPRING_JPA_SHOW_SQL}
       - SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL=${SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL}
-      
+
       # CORS settings for frontend
       - SPRING_SECURITY_CORS_ALLOWED_ORIGINS=${SPRING_SECURITY_CORS_ALLOWED_ORIGINS}
       - SPRING_SECURITY_CORS_ALLOWED_METHODS=${SPRING_SECURITY_CORS_ALLOWED_METHODS}
       - SPRING_SECURITY_CORS_ALLOWED_HEADERS=${SPRING_SECURITY_CORS_ALLOWED_HEADERS}
       - SPRING_SECURITY_CORS_ALLOW_CREDENTIALS=${SPRING_SECURITY_CORS_ALLOW_CREDENTIALS}
-      
+
       # JWT Configuration
-      - APP_SECURITY_JWT_SECRET_KEY=${APP_SECURITY_JWT_SECRET_KEY}
+      - APP_SECURITY_JWT_SECRET_KEY=${APP_SECURITY_JWT_SECRET_KEY:?set APP_SECURITY_JWT_SECRET_KEY in .env}
       - APP_SECURITY_JWT_TOKEN_EXPIRATION_MS=${APP_SECURITY_JWT_TOKEN_EXPIRATION_MS}
       - APP_SECURITY_JWT_REFRESH_EXPIRATION_MS=${APP_SECURITY_JWT_REFRESH_EXPIRATION_MS}
       - APP_SECURITY_JWT_TOKEN_PREFIX=${APP_SECURITY_JWT_TOKEN_PREFIX}
       - APP_SECURITY_JWT_HEADER_NAME=${APP_SECURITY_JWT_HEADER_NAME}
-      
+
       # Logging
       - LOGGING_LEVEL_ORG_HIBERNATE_SQL=${LOGGING_LEVEL_ORG_HIBERNATE_SQL}
       - LOGGING_LEVEL_ORG_HIBERNATE_TYPE_DESCRIPTOR_SQL_BASICBINDER=${LOGGING_LEVEL_ORG_HIBERNATE_TYPE_DESCRIPTOR_SQL_BASICBINDER}
@@ -64,6 +94,29 @@ services:
     networks:
       - fut-next-network
     restart: unless-stopped
+    mem_limit: 768m
+    cpus: 1.0
+    logging: *default-logging
+    <<: *default-security
+    healthcheck:
+      # /bin/sh in joshua76i/fut-backend:v2.0 is dash, not bash - the old
+      # /dev/tcp redirect (a bash-only feature) failed unconditionally on
+      # every check regardless of app health. wget is present in this image;
+      # /users/exist-admin is a real, already-permitAll GET endpoint (see
+      # SecurityConfig) that also touches the DB, unlike the nonexistent
+      # /actuator/health this project has no actuator dependency for. It
+      # requires a `role` query param (UserController.existAdmin does
+      # UserRole.valueOf(role)) - omitting it 400s on every single check,
+      # which --spider treats as a failure just like the old broken check.
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider 'http://localhost:8080/users/exist-admin?role=ADMINISTRADOR' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      # Widened from 45s: this image's Spring context genuinely takes ~60s
+      # to finish starting on this machine (Windows Docker Desktop), per the
+      # actual logged "Started SoccerSystemApplication in 59.568 seconds" -
+      # 45s cut it off before the app had a chance to answer even one check.
+      start_period: 75s
 
   # Next.js Frontend
   frontend:
@@ -87,10 +140,15 @@ services:
       - SUPEBASE_FOLDER_USERS=${SUPEBASE_FOLDER_USERS}
       - SUPABASE_NAME_BUCKET=${SUPABASE_NAME_BUCKET}
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - fut-next-network
     restart: unless-stopped
+    mem_limit: 768m
+    cpus: 1.0
+    logging: *default-logging
+    <<: *default-security
 
 volumes:
   postgres_data:

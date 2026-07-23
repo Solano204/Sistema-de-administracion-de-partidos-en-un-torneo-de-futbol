@@ -1,0 +1,144 @@
+name: Backend main branch build
+
+# Confirms main itself stays green after a merge - same checks as
+# backend-pr.yml, re-run from a clean checkout of main (workflows can't
+# share job state across files). No deploy step yet.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/soccer-system (2)/soccer-system/soccer-system/**"
+      - ".github/workflows/backend-main.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-main-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BACKEND_DIR: "backend/soccer-system (2)/soccer-system/soccer-system"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: soccerdb
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: 1234
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U admin -d soccerdb"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Seed schema from database/init scripts
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y postgresql-client
+          for f in "$BACKEND_DIR"/database/init/*.sql; do
+            echo "Applying $f"
+            PGPASSWORD=1234 psql -h localhost -U admin -d soccerdb -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+      - name: Build and test (full reactor)
+        working-directory: ${{ env.BACKEND_DIR }}
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/soccerdb
+          SPRING_DATASOURCE_USERNAME: admin
+          SPRING_DATASOURCE_PASSWORD: 1234
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+          SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+          # Dev-only test key, same default already committed in application.yaml / .env - not a real secret.
+          APP_SECURITY_JWT_SECRET_KEY: dGVzdF9zZWNyZXRfa2V5X2Zvcl9kZXZlbG9wbWVudF9vbmx5X2RvX25vdF91c2VfaW5fcHJvZHVjdGlvbg==
+        run: mvn -B test
+
+      - name: Upload surefire reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: backend-surefire-reports
+          path: "${{ env.BACKEND_DIR }}/**/target/surefire-reports/*.xml"
+          retention-days: 7
+          if-no-files-found: ignore
+
+  docker:
+    name: Build & push Docker image
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      security-events: write
+    env:
+      BACKEND_DIR: "backend/soccer-system (2)/soccer-system/soccer-system"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image (local, for scanning)
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: ${{ env.BACKEND_DIR }}
+          file: ${{ env.BACKEND_DIR }}/dockerfile
+          load: true
+          tags: ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}
+
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}
+          format: sarif
+          output: trivy-backend.sarif
+          severity: CRITICAL,HIGH
+          exit-code: "0"
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@48ab28a6f5dbc2a99bf1e0131198dd8f1df78169 # v3.28.0
+        with:
+          sarif_file: trivy-backend.sarif
+
+      - name: Push image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: ${{ env.BACKEND_DIR }}
+          file: ${{ env.BACKEND_DIR }}/dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/soccer-backend:latest
+            ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
+
+      - name: Sign image (keyless, via GitHub OIDC)
+        run: cosign sign --yes ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}

@@ -10,7 +10,10 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "build:emergency": "cross-env NODE_OPTIONS=--max-old-space-size=16384 WEBPACK_PARALLEL=false next build --no-lint"
+    "build:emergency": "cross-env NODE_OPTIONS=--max-old-space-size=16384 WEBPACK_PARALLEL=false next build --no-lint",
+    "analyze": "cross-env ANALYZE=true NODE_OPTIONS=--max-old-space-size=8192 next build",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@gsap/react": "^2.1.0",
@@ -34,12 +37,12 @@
     "framer-motion": "^12.4.7",
     "fut-next": "file:",
     "gsap": "^3.12.5",
-    "jspdf": "^3.0.1",
-    "jspdf-autotable": "^5.0.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lenis": "^1.1.20",
     "lodash": "^4.17.21",
     "lucide-react": "^0.475.0",
-    "next": "15.3.2",
+    "next": "^15.5.21",
     "next-themes": "^0.4.4",
     "next-view-transitions": "^0.3.4",
     "postcss": "^8.5.2",
@@ -62,15 +65,20 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@next/bundle-analyzer": "^15.1.8",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
     "@types/lodash": "^4.17.16",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.173.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "cross-env": "^7.0.3",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
-    "typescript": "^5"
+    "jsdom": "^25.0.1",
+    "typescript": "^5",
+    "vitest": "^3.0.5"
   },
   "overrides": {
     "react": "^19.0.0",

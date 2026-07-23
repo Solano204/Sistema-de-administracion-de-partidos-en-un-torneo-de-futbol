@@ -1,0 +1,82 @@
+name: Frontend main branch build
+
+# Confirms main itself stays green after a merge - same checks as
+# frontend-pr.yml, re-run from a clean checkout of main.
+#
+# Moved here from frontend/fut-next/.github/workflows/ - GitHub Actions only
+# ever reads workflows from the repo root's .github/workflows/, so this (and
+# frontend-pr.yml) had never actually run once, despite a comment in the old
+# file claiming the path had already been fixed.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/fut-next/**"
+      - ".github/workflows/frontend-main.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-main-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: frontend/fut-next
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      # Doc 3/11 fix: Dockerfile expects .next/standalone to already exist in
+      # the build context - it packages a pre-built app, it doesn't build one
+      # (deliberately: this app has a real, documented next-build memory
+      # problem, see next.config.js and package.json's build:memory/
+      # build:emergency scripts - building inside `docker build` on this
+      # runner's 7GB would very likely OOM the same way local builds have).
+      # Building on the runner directly, not inside the Docker build, keeps
+      # the OOM-prone step outside the extra overhead of a containerized build.
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/fut-next/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Security audit (critical only)
+        run: npm audit --audit-level=critical
+
+      - name: Build Next.js app
+        run: npm run build
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: frontend/fut-next
+          file: frontend/fut-next/Dockerfile
+          push: false
+          tags: yourname/fut-next-app:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/fut-next-app.tar
+
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: fut-next-app-docker-image
+          path: /tmp/fut-next-app.tar
+          retention-days: 1
