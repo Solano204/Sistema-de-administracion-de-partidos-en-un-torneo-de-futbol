@@ -51,6 +51,17 @@ const handleApiError = (error: unknown) => {
   throw error;
 };
 
+// Backend path variables are typed UUID - rejecting anything else before it
+// reaches a template-literal URL closes off the "unvalidated value in a
+// request URL" class of issue CodeQL flags here, not just silences it.
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const assertUuid = (value: string, paramName: string): string => {
+  if (!UUID_PATTERN.test(value)) {
+    throw new Error(`Invalid ${paramName}: expected a UUID`);
+  }
+  return value;
+};
+
 /**
  * Create a new player debt
  */
@@ -116,7 +127,7 @@ export const updateDebtStatus = async (
  */
 export const fetchPlayerDebts = async (playerId: string): Promise<DebtRecordDto[]> => {
   try {
-    const response = await apiClient.get(`/player/${playerId}`);
+    const response = await apiClient.get(`/player/${assertUuid(playerId, "playerId")}`);
     return response.data;
   } catch (error) {
     return handleApiError(error);
