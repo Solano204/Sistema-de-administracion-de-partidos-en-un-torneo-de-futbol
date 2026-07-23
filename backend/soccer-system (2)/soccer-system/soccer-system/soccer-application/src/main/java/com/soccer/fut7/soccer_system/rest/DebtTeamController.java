@@ -59,9 +59,13 @@ public class DebtTeamController {
         return ResponseEntity.ok(debtTeamApplicationService.updateTeamDebtStatus(debtId, status, paidDate));
     }
 
+    // "/team/{teamId}", not bare "/{teamId}": that collided with PUT/DELETE
+    // "/{debtId}" below - same single-segment shape, different param name,
+    // which Spectral's path-params rule correctly flags as an ambiguous
+    // OpenAPI path.
     @Operation(summary = "List every debt for a team")
     @ApiResponse(responseCode = "200", description = "Debts returned (possibly empty)")
-    @GetMapping("/{teamId}")
+    @GetMapping("/team/{teamId}")
     public ResponseEntity<Set<DebtRecordDto>> getAllTeamDebts(
             @PathVariable @NotNull(message = "Team ID cannot be null") UUID teamId) {
         return ResponseEntity.ok(debtTeamApplicationService.getAllTeamDebts(teamId));

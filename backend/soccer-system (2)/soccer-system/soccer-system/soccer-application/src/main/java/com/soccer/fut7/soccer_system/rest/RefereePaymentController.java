@@ -39,9 +39,14 @@ public class RefereePaymentController {
     @Autowired
     private RefereePaymentApplicationService refereePaymentApplicationService;
 
+    // "/referee/{refereeId}", not bare "/{refereeId}": that collided with
+    // GET/PUT/DELETE "/{paymentId}" below - same single-segment shape, different
+    // param name, which Spectral's path-params rule correctly flags as an
+    // ambiguous OpenAPI path (and which a plain URL-based router genuinely
+    // can't disambiguate). Mirrors the existing "/payment/{paymentId}" convention.
     @Operation(summary = "List all payments for a referee")
     @ApiResponse(responseCode = "200", description = "Payments returned (possibly empty)")
-    @GetMapping("/{refereeId}")
+    @GetMapping("/referee/{refereeId}")
     public Set<RefereePaymentDetailsRecord> getAllPaymentsForReferee(@PathVariable UUID refereeId) {
         return refereePaymentApplicationService.getAllPaymentsForReferee(refereeId);
     }

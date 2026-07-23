@@ -141,7 +141,7 @@ export const updateOrInsertRefereePayment = async (
  */
 export const fetchPaymentById = async (paymentId: string): Promise<RefereePayment> => {
   try {
-    const response = await apiClient.get(`/referee-payments/${paymentId}`);
+    const response = await apiClient.get(`/referee-payments/payment/${paymentId}`);
     return response.data;
   } catch (error) {
     return handleApiError(error);
@@ -166,7 +166,7 @@ export const fetchPaymentsByReferee = async (
   refereeId: string
 ): Promise<RefereePayment[]> => {
   try {
-    const response = await apiClient.get(`/referee-payments/${refereeId}`);
+    const response = await apiClient.get(`/referee-payments/referee/${refereeId}`);
     return response.data;
   } catch (error) {
     return handleApiError(error);

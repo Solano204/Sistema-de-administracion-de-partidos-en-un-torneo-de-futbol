@@ -115,7 +115,7 @@ export const updateTeamDebtStatus = async (
  */
 export const fetchTeamDebts = async (teamId: string): Promise<TeamDebtRecordDto[]> => {
   try {
-    const response = await apiClient.get(`/${teamId}`);
+    const response = await apiClient.get(`/team/${teamId}`);
     return response.data;
   } catch (error) {
     return handleApiError(error);

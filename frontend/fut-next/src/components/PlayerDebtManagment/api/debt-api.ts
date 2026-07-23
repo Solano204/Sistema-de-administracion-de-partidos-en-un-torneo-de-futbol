@@ -116,7 +116,7 @@ export const updateDebtStatus = async (
  */
 export const fetchPlayerDebts = async (playerId: string): Promise<DebtRecordDto[]> => {
   try {
-    const response = await apiClient.get(`/${playerId}`);
+    const response = await apiClient.get(`/player/${playerId}`);
     return response.data;
   } catch (error) {
     return handleApiError(error);
