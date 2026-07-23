@@ -75,7 +75,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "cross-env": "^7.0.3",
     "eslint": "^9",
-    "eslint-config-next": "15.1.7",
+    "eslint-config-next": "16.2.11",
     "jsdom": "^25.0.1",
     "typescript": "^5",
     "vitest": "^3.0.5"
