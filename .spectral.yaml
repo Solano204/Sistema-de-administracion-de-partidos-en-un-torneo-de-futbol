@@ -7,7 +7,12 @@ rules:
   operation-operationId: warn
   operation-tags: error
   operation-tag-defined: error
-  operation-2xx-response: error
+  # Renamed upstream from operation-2xx-response - the old name is still
+  # accepted by some Spectral internals via a stale alias table that
+  # mistranslates it to a rule name ("operation-default-response") that no
+  # longer exists either, so keeping the old name here crashes ruleset
+  # loading entirely with "Cannot extend non-existing rule".
+  operation-success-response: error
   oas3-unused-component: error
   no-$ref-siblings: error
 
