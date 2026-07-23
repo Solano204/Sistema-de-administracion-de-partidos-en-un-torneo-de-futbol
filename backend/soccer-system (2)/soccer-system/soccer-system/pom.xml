@@ -30,7 +30,7 @@
     <properties>
         <java.version>21</java.version>
         <spring-boot.version>3.2.4</spring-boot.version>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.46</lombok.version>
         <hibernate.version>6.3.1.Final</hibernate.version>
         <postgresql.version>42.7.1</postgresql.version>
         <!-- 2.8.13 requires Spring Framework internals (e.g. LiteWebJarsResourceResolver)
