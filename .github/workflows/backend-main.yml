@@ -105,18 +105,27 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # ghcr.io repository names must be lowercase - github.repository_owner
+      # preserves the account's actual case ("Solano204"), which buildx then
+      # rejects outright ("repository name must be lowercase").
+      - name: Compute image name
+        id: image
+        run: |
+          OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "name=ghcr.io/${OWNER_LC}/soccer-backend" >> "$GITHUB_OUTPUT"
+
       - name: Build image (local, for scanning)
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: ${{ env.BACKEND_DIR }}
           file: ${{ env.BACKEND_DIR }}/dockerfile
           load: true
-          tags: ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}
+          tags: ${{ steps.image.outputs.name }}:${{ github.sha }}
 
       - name: Scan image for vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          image-ref: ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}
+          image-ref: ${{ steps.image.outputs.name }}:${{ github.sha }}
           format: sarif
           output: trivy-backend.sarif
           severity: CRITICAL,HIGH
@@ -134,11 +143,11 @@ jobs:
           file: ${{ env.BACKEND_DIR }}/dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/soccer-backend:latest
-            ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}
+            ${{ steps.image.outputs.name }}:latest
+            ${{ steps.image.outputs.name }}:${{ github.sha }}
 
       - name: Install cosign
         uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
 
       - name: Sign image (keyless, via GitHub OIDC)
-        run: cosign sign --yes ghcr.io/${{ github.repository_owner }}/soccer-backend:${{ github.sha }}
+        run: cosign sign --yes ${{ steps.image.outputs.name }}:${{ github.sha }}
