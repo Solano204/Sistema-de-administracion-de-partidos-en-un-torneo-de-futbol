@@ -31,7 +31,7 @@ COPY . .
 RUN mvn clean install -DskipTests
 
 # Third stage: Runtime
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:24-jre
 
 WORKDIR /app
 
