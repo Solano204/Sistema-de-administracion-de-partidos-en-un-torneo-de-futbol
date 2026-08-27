@@ -7,7 +7,7 @@
 # directly (where you control available RAM), and let this Dockerfile just
 # containerize the output - building inside the Docker build added overhead
 # on top of a build that was already memory-constrained.
-FROM node:20-alpine
+FROM node:25-alpine
 
 WORKDIR /app
 
