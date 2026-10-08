@@ -1,5 +1,5 @@
 # First stage: Dependencies
-FROM maven:3.9.9-eclipse-temurin-21 AS dependencies
+FROM maven:3.9-eclipse-temurin-26 AS dependencies
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ COPY soccer-container/pom.xml soccer-container/
 RUN mvn -B dependency:go-offline -DskipTests
 
 # Second stage: Build - IMPORTANT: Use maven image again, not just JRE
-FROM maven:3.9.9-eclipse-temurin-21 AS builder
+FROM maven:3.9-eclipse-temurin-26 AS builder
 
 WORKDIR /app
 
